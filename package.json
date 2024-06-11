@@ -1,0 +1,16 @@
+{
+    "name": "racetrack",
+    "version": "1.0.0",
+    "description": "Racetrack API for kood/Sisu project",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js",
+      "run dev": "TIMER=60 node index.js" 
+    },
+    "dependencies": {
+      "express": "^4.19.2",
+      "socket.io": "^4.7.5"
+    },
+    "devDependencies": {
+    }
+  }
