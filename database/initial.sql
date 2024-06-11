@@ -13,7 +13,7 @@ CREATE TABLE "driver_car_assignments" (
   "id" INTEGER PRIMARY KEY,
   "session_id" INTEGER,
   "car_id" INTEGER,
-  "driverName" TEXT,
+  "driver_name" TEXT,
   FOREIGN KEY("session_id") REFERENCES "sessions"("id") ON DELETE CASCADE,
   FOREIGN KEY("car_id") REFERENCES "cars"("id"),
   UNIQUE("session_id", "driver_name"),
