@@ -1,16 +1,18 @@
 // Import necessary modules
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const path = require('path');
-const url = require('url');
-const { join } = require('node:path');
+import express from 'express';
+import { createServer } from 'node:http';
+import { Server } from 'socket.io';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 
 
 // Create an Express application
 const app = express();
+// Serve the public directory (statics)
+app.use('/public', express.static('public'));
 // Create a HTTP server using the Express application
-const server = http.createServer(app);
+const server = createServer(app);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Define a route handler for each interface
 app.get('/leader-board', (req, res) => res.sendFile(join(__dirname, 'html', 'leaderBoard.html')));
@@ -25,7 +27,7 @@ app.get('/next-race', (req, res) => res.sendFile(join(__dirname, 'html', 'nextRa
 
 // Attach socket.io to the HTTP server
 // Example of how to recieve and send data via the socket below (feel free to delete/modify)
-const io = socketIo(server);
+const io = new Server(server);
 io.on('connection', (socket) => {
     socket.on('racemode', (data) => {
       // When we receive 'racemode' event from a client, emit it to all clients

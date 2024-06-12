@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "Racetrack API for kood/Sisu project",
     "main": "index.js",
+    "type": "module",
     "scripts": {
       "start": "node index.js",
       "run dev": "TIMER=60 node index.js" 
