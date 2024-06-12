@@ -5,13 +5,13 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-      "start": "node index.js",
-      "run dev": "TIMER=60 node index.js" 
+        "start": "node index.js",
+        "run dev": "TIMER=60 node index.js"
     },
     "dependencies": {
-      "express": "^4.19.2",
-      "socket.io": "^4.7.5"
-    },
-    "devDependencies": {
+        "express": "^4.19.2",
+        "socket.io": "^4.7.5",
+        "sqlite": "^5.1.1",
+        "sqlite3": "^5.1.7"
     }
-  }
+}

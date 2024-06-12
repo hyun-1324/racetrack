@@ -1,44 +1,59 @@
 // Import necessary modules
-import express from 'express';
-import { createServer } from 'node:http';
-import { Server } from 'socket.io';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-
+import express from "express";
+import { createServer } from "node:http";
+import { Server } from "socket.io";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import { initializeDb } from "./database";
 
 // Create an Express application
 const app = express();
 // Serve the public directory (statics)
-app.use('/public', express.static('public'));
+app.use("/public", express.static("public"));
 // Create a HTTP server using the Express application
 const server = createServer(app);
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Define a route handler for each interface
-app.get('/leader-board', (req, res) => res.sendFile(join(__dirname, 'html', 'leaderBoard.html')));
-app.get('/front-desk', (req, res) => res.sendFile(join(__dirname, 'html', 'reception.html')));
-app.get('/race-control', (req, res) => res.sendFile(join(__dirname, 'html', 'safety.html')));
-app.get('/lap-line-tracker', (req, res) => res.sendFile(join(__dirname, 'html', 'observer.html')));
-app.get('/race-countdown', (req, res) => res.sendFile(join(__dirname, 'html', 'countdown.html')));
-app.get('/race-flags', (req, res) => res.sendFile(join(__dirname, 'html', 'flag.html')));
-app.get('/next-race', (req, res) => res.sendFile(join(__dirname, 'html', 'nextRace.html')));
+initializeDb().then((db) => {
+  // Define a route handler for each interface
+  app.get("/leader-board", (req, res) =>
+    res.sendFile(join(__dirname, "html", "leaderBoard.html"))
+  );
+  app.get("/front-desk", (req, res) =>
+    res.sendFile(join(__dirname, "html", "reception.html"))
+  );
+  app.get("/race-control", (req, res) =>
+    res.sendFile(join(__dirname, "html", "safety.html"))
+  );
+  app.get("/lap-line-tracker", (req, res) =>
+    res.sendFile(join(__dirname, "html", "observer.html"))
+  );
+  app.get("/race-countdown", (req, res) =>
+    res.sendFile(join(__dirname, "html", "countdown.html"))
+  );
+  app.get("/race-flags", (req, res) =>
+    res.sendFile(join(__dirname, "html", "flag.html"))
+  );
+  app.get("/next-race", (req, res) =>
+    res.sendFile(join(__dirname, "html", "nextRace.html"))
+  );
 
-
-
-// Attach socket.io to the HTTP server
-// Example of how to recieve and send data via the socket below (feel free to delete/modify)
-const io = new Server(server);
-io.on('connection', (socket) => {
-    socket.on('racemode', (data) => {
+  // Attach socket.io to the HTTP server
+  // Example of how to recieve and send data via the socket below (feel free to delete/modify)
+  const io = new Server(server);
+  io.on("connection", (socket) => {
+    socket.on("racemode", (data) => {
       // When we receive 'racemode' event from a client, emit it to all clients
-      io.emit('racemode', data);
+      io.emit("racemode", data);
     });
   });
 
-// Start the server
-const port = process.env.PORT || 3000;
-server.listen(port, () => console.log(`Server running on port ${port}...`));
+  // Start the server
+  const port = process.env.PORT || 3000;
+  server.listen(port, () => console.log(`Server running on port ${port}...`));
 
-// ngrok is run in different terminal with the same port as the local host server:
-// ngrok http 3000
-// ./ngrok http 3000
+  // ngrok is run in different terminal with the same port as the local host server:
+  // ngrok http 3000
+  // ./ngrok http 3000
+});
