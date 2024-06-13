@@ -1,3 +1,5 @@
+import { sessionInfoData } from "./classes.js";
+
 let sessionIdCounter = 1;
 
 function addSession() {
@@ -7,7 +9,6 @@ function addSession() {
   const newRow = tableBody.insertRow();
   const data = { sessionId: sessionIdCounter };
   socket.emit("add_session", data);
-  console.log(data);
 
   const cellSelect = newRow.insertCell(0);
   const checkbox = document.createElement("input");
@@ -21,7 +22,7 @@ function addSession() {
     const cell = newRow.insertCell(i);
     const input = document.createElement("input");
     input.type = "text";
-    input.placeholder = `Driver ${i - 1}`;
+    input.placeholder = `Car ${i - 1}`;
     cell.appendChild(input);
   }
 
@@ -46,13 +47,13 @@ function editDrivers(row) {
     Array.from(inputs).some((input) => input.type === "text" && input.disabled)
   ) {
     const sessionId = row.cells[1].textContent;
-    const sessionData = { sessionId: sessionId };
+    const driverNameList = [];
+
     for (let i = 2; i <= 9; i++) {
       const input = row.cells[i].getElementsByTagName("input")[0];
-      sessionData[`driver${i - 1}`] = input.value;
+      driverNameList.push(input.value);
     }
-
-    console.log(sessionData);
+    const sessionData = new sessionInfoData(sessionId, driverNameList);
 
     socket.emit("update_session_data", sessionData);
   }
@@ -88,3 +89,6 @@ socket.on("session_begins", (data) => {
     }
   }
 });
+
+window.addSession = addSession;
+window.removeSessions = removeSessions;
