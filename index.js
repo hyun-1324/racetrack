@@ -23,6 +23,8 @@ if (!result.success) {
 const app = express();
 // Serve the public directory (statics)
 app.use("/public", express.static("public"));
+// Serve the static directory (statics)
+app.use("/static", express.static("static"));
 // Set ejs as the view engine (templating engine)
 app.set("view engine", "ejs");
 // Parse JSON bodies (as sent by API clients) and URL encoded bodies to be able to read post request from login

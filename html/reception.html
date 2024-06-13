@@ -1,14 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Receptionist</title>
-    <script type="module" src="/public/reception.js"></script>
+    <script src="/public/reception.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script>socket = io();</script>
-</head>
-<body>
-    
-</body>
+    <script>const socket = io();</script>
+    <link rel="stylesheet"  href="/static/reception.css" />
+  </head>
+  <body>
+    <h1>Upcoming Sessions List</h1>
+    <div class="buttons">
+        <button onclick="addSession()">Add Session</button>
+        <button onclick="removeSessions()">Remove Sessions</button>
+    </div>
+    <table id="sessionsTable">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Session ID</th>
+                <th>Driver 1</th>
+                <th>Driver 2</th>
+                <th>Driver 3</th>
+                <th>Driver 4</th>
+                <th>Driver 5</th>
+                <th>Driver 6</th>
+                <th>Driver 7</th>
+                <th>Driver 8</th>
+                <th>Modify Drivers' Names</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+  </table>
+  </body>
 </html>
