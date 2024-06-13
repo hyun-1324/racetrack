@@ -33,6 +33,8 @@ function addSession() {
 }
 
 function editDrivers(row) {
+  // We need to add code later to check if the session has already started.
+
   const inputs = row.getElementsByTagName("input");
   for (const input of inputs) {
     if (input.type === "text") {
