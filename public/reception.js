@@ -22,7 +22,7 @@ function addSession() {
     const cell = newRow.insertCell(i);
     const input = document.createElement("input");
     input.type = "text";
-    input.placeholder = `Car ${i - 1}`;
+    input.placeholder = `Driver ${i - 1}`;
     cell.appendChild(input);
   }
 
