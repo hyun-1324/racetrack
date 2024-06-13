@@ -7,6 +7,7 @@ function addSession() {
   const newRow = tableBody.insertRow();
   const data = { sessionId: sessionIdCounter };
   socket.emit("add_session", data);
+  console.log(data);
 
   const cellSelect = newRow.insertCell(0);
   const checkbox = document.createElement("input");
@@ -35,11 +36,23 @@ function editDrivers(row) {
   const inputs = row.getElementsByTagName("input");
   for (const input of inputs) {
     if (input.type === "text") {
-      if (!input.disabled) {
-        updateSessionData(row);
-      }
       input.disabled = !input.disabled;
     }
+  }
+
+  if (
+    Array.from(inputs).some((input) => input.type === "text" && input.disabled)
+  ) {
+    const sessionId = row.cells[1].textContent;
+    const sessionData = { sessionId: sessionId };
+    for (let i = 2; i <= 9; i++) {
+      const input = row.cells[i].getElementsByTagName("input")[0];
+      sessionData[`driver${i - 1}`] = input.value;
+    }
+
+    console.log(sessionData);
+
+    socket.emit("update_session_data", sessionData);
   }
 }
 
@@ -57,20 +70,6 @@ function removeSessions() {
       tableBody.removeChild(row);
     }
   }
-}
-
-function updateSessionData(row) {
-  const sessionId = row.cells[1].textContent;
-  const sessionData = { sessionId: sessionId };
-
-  for (let i = 2; i <= 9; i++) {
-    const input = row.cells[i].getElementsByTagName("input")[0];
-    sessionData[`driver${i - 1}`] = input.value;
-  }
-
-  console.log(sessionData);
-
-  socket.emit("update_session_data", sessionData);
 }
 
 socket.on("session_begins", (data) => {

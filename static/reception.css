@@ -16,6 +16,7 @@ td {
 
 th,
 td {
+  box-sizing: border-box;
   padding: 10px;
   text-align: center;
 }
