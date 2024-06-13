@@ -28,7 +28,7 @@ function addSession() {
 
   const cellActions = newRow.insertCell(10);
   const editButton = document.createElement("button");
-  editButton.textContent = "Edit";
+  editButton.textContent = "Save";
   editButton.onclick = () => editDrivers(newRow);
   cellActions.appendChild(editButton);
 }
@@ -37,6 +37,18 @@ function editDrivers(row) {
   // We need to add code later to check if the session has already started.
 
   const inputs = row.getElementsByTagName("input");
+  const driverNameList = [];
+
+  for (let i = 2; i <= 9; i++) {
+    const input = row.cells[i].getElementsByTagName("input")[0];
+    driverNameList.push(input.value);
+  }
+
+  if (hasDuplicates(driverNameList)) {
+    alert("Driver names are duplicated.");
+    return;
+  }
+
   for (const input of inputs) {
     if (input.type === "text") {
       input.disabled = !input.disabled;
@@ -47,16 +59,28 @@ function editDrivers(row) {
     Array.from(inputs).some((input) => input.type === "text" && input.disabled)
   ) {
     const sessionId = row.cells[1].textContent;
-    const driverNameList = [];
 
-    for (let i = 2; i <= 9; i++) {
-      const input = row.cells[i].getElementsByTagName("input")[0];
-      driverNameList.push(input.value);
-    }
     const sessionData = new sessionInfoData(sessionId, driverNameList);
-
     socket.emit("update_session_data", sessionData);
   }
+
+  const button = row.getElementsByTagName("button");
+  if (button[0].innerHTML === "Edit") {
+    button[0].innerHTML = "Save";
+  } else if (button[0].innerHTML === "Save") {
+    button[0].innerHTML = "Edit";
+  }
+}
+
+function hasDuplicates(array) {
+  let uniqueNameArray = [];
+  for (let i = 0; i < 8; i++) {
+    if (!(array[i] === "")) {
+      uniqueNameArray.push(array[i]);
+    }
+  }
+  const uniqueElements = new Set(uniqueNameArray);
+  return uniqueElements.size !== uniqueNameArray.length;
 }
 
 function removeSessions() {
