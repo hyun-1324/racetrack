@@ -13,8 +13,8 @@ export async function initializeDb() {
       driver: sqlite3.Database,
     });
   } catch (err) {
-    console.error("Error opening database:", err.message);
-    return;
+    err.message = ("Error opening database:", err.message);
+    throw new Error(err);
   }
 
   const sqlFilePath = join(__dirname, "initial.sql");
@@ -22,8 +22,8 @@ export async function initializeDb() {
   try {
     schema = fs.readFileSync(sqlFilePath, "utf-8");
   } catch (err) {
-    console.error("Error reading SQL schema:", err.message);
-    return;
+    err.message = ("Error reading SQL schema:", err.message);
+    throw new Error(err);
   }
 
 try {
@@ -41,8 +41,8 @@ try {
       await db.run("INSERT INTO metadata (schemaApplied) VALUES (1);");
     }
   } catch (err) {
-    console.error("Error applying SQL schema:", err.message);
-    return;
+    err.message = ("Error applying SQL schema:", err.message);
+    throw new Error(err);
   }
 
   return db;

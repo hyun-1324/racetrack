@@ -63,4 +63,7 @@ initializeDb().then((db) => {
   // ngrok is run in different terminal with the same port as the local host server:
   // ngrok http 3000
   // ./ngrok http 3000
-});
+}).catch((error) => {
+    console.error("Error initializing database:", error.message);
+    process.exit(1);
+  });
