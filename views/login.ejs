@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script type="module" src="/public/login.js"></script>
+</head>
+<body>
+    <div id="error">
+        <%= errorMessage %>
+    </div>
+    <p id="headerText"></p>
+    <form id="keyForm" method="post">
+        <label id="accessLabel" for="accessKey"></label>
+        <input type="password" id="accessKey" name="key" required>
+        <input type="submit" value="Login">
+    </form>
+</body>
+</html>
