@@ -1,0 +1,36 @@
+:root {
+    --backgroundcolor: #b7b6b6;
+}
+
+body {
+    background-color: var(--backgroundcolor);
+    font-family: Arial, sans-serif;
+}
+
+.submitButton {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    padding: 10px 15px;
+    border: thin solid black;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+#login {
+    text-align: center;
+    margin-left: auto;
+    margin-top: 10rem;
+    position: relative;
+}
+
+#error {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    text-wrap: nowrap;
+    margin-top: 3rem;
+}
+

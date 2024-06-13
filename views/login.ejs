@@ -5,16 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <script type="module" src="/public/login.js"></script>
+    <link rel="stylesheet" href="/public/login.css">
 </head>
 <body>
     <div id="error">
         <%= errorMessage %>
     </div>
-    <p id="headerText"></p>
-    <form id="keyForm" method="post">
-        <label id="accessLabel" for="accessKey"></label>
-        <input type="password" id="accessKey" name="key" required>
-        <input type="submit" value="Login">
-    </form>
+    <div id="login">
+        <p id="headerText"></p>
+        <form id="keyForm" method="post">
+            <label id="accessLabel" for="accessKey"></label>
+            <input type="password" id="accessKey" name="key" required><br>
+            <input class="submitButton" type="submit" value="Login">
+        </form>
+    </div>
 </body>
 </html>
