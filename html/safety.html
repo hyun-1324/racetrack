@@ -1,14 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Safety Official</title>
     <script type="module" src="/public/safety.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script>socket = io();</script>
-</head>
-<body>
-   
-</body>
+    <script>
+      socket = io();
+    </script>
+    <link rel="stylesheet" href="/public/safety.css" />
+  </head>
+  <body>
+    <h2>Safety control</h2>
+    <div class="buttons">
+      <button onclick="startRace()" id="start">Start Race</button>
+      <button onclick="endSession()" id="end" disabled>End Session</button>
+    </div>
+    <div class="timer" id="timer">00:00:00</div>
+    <h3>Race modes</h3>
+    <div class="modeButtons">
+      <button onclick="safeMode()" id="safe" disabled>Safe</button>
+      <button onclick="hadardMode()" id="hazard" disabled>Hazard</button>
+      <button onclick="dangerMode()" id="danger" disabled>Danger</button>
+      <button onclick="finishMode()" id="finish" disabled>Finish</button>
+    </div>
+
+    <div class="sessionInfo">
+      <h2 id="sessionID">Session ID:</h2>
+      <table id="driverTable">
+        <thead>
+          <tr>
+            <th>Car 1</th>
+            <th>Car 2</th>
+            <th>Car 3</th>
+            <th>Car 4</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="car1">a</td>
+            <td id="car2">b</td>
+            <td id="car3">c</td>
+            <td id="car4">d</td>
+          </tr>
+          <tr>
+            <th>Car 5</th>
+            <th>Car 6</th>
+            <th>Car 7</th>
+            <th>Car 8</th>
+          </tr>
+          <tr>
+            <td id="car5">e</td>
+            <td id="car6">f</td>
+            <td id="car7">g</td>
+            <td id="car8">h</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
 </html>

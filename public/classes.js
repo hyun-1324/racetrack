@@ -1,11 +1,11 @@
 // Class for data being sent via 'raceMode' socket event by safety official
-// Options for mode: 'safe', 'hazard', 'danger', 'finish'
+// Options for mode: 'safe', 'hazard', 'danger', 'finish', 'sessionEnded'
 // Options for startRace and endSession: true/false
 export class raceModeData {
   constructor(modeName, startRace, endSession) {
     this.mode = modeName;
     this.startRace = startRace;
-    this.endSession = endSession;
+    this.endTime = endTime;
   }
 }
 
