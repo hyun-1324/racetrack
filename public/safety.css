@@ -28,8 +28,15 @@ td {
   text-align: end;
 }
 
+.modeButtons {
+  display: none;
+}
+
+#end {
+  display: none;
+}
+
 .timer {
   font-size: 2em;
   text-align: center;
-  margin-top: 5%;
 }

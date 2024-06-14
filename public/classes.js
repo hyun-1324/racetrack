@@ -1,25 +1,23 @@
-// Class for data being sent via 'raceMode' socket event by safety official
-// Options for mode: 'safe', 'hazard', 'danger', 'finish', 'sessionEnded'
-// Options for startRace and endSession: true/false
-export class raceModeData {
-  constructor(modeName, startRace, endSession) {
-    this.mode = modeName;
-    this.startRace = startRace;
+export class endTimeData {
+  constructor(sessionId, endTime) {
+    this.sessionId = sessionId;
     this.endTime = endTime;
   }
 }
 
 // Class for data being sent via 'lap' socket event by lap-line-observer
-export class lapData {
-  constructor(carNumber, lapTime) {
+export class lapTime {
+  constructor(sessionId, carNumber, lapRound, fastestLapTime) {
+    this.sessionId = sessionId;
     this.carNumber = carNumber;
-    this.lapTime = lapTime;
+    this.lapRound = lapRound;
+    this.fastestlapTime = fastestLapTime;
   }
 }
 
 // Class for data being sent via 'driverInfo' socket event by receptionist
 // Action options: 'add', 'remove', 'edit'
-export class sessionInfoData {
+export class sessionData {
   constructor(sessionId, driverNameList) {
     this.sessionId = sessionId;
     this.driverNameList = driverNameList;
