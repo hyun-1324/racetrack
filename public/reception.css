@@ -1,0 +1,27 @@
+body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  overflow-wrap: break-word;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid black;
+}
+
+th,
+td {
+  box-sizing: border-box;
+  padding: 10px;
+  text-align: center;
+}
+
+.buttons {
+  text-align: right;
+  margin-bottom: 10px;
+}
