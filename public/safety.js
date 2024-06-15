@@ -8,6 +8,7 @@ const danger = document.getElementById('danger');
 const finish = document.getElementById('finish');
 const currentMode = document.getElementById('currentMode');
 const sessionInfo = document.getElementById('sessionInfo');
+const noRaces = document.getElementById('noRaces');
 const modeButtons = document.querySelector('.modeButtons');
 let sessionId = document.getElementById('sessionId').textContent;
 let countdownFunction;
@@ -40,6 +41,8 @@ function endSession() {
 
   if (upcomingSessionData.sessionId === 0) {
     sessionId = 0;
+    hideElements(sessionInfo);
+    showElements(noRaces);
     start.disabled = !start.disabled;
   } else {
     sessionId = upcomingSessionData.sessionId;
@@ -89,15 +92,15 @@ function toggleModeButtonsState() {
 }
 
 function showElements(elements) {
-  elements.style.display = 'inline';
-  if (!(elements === sessionInfo)) {
+  elements.style.display = 'block';
+  if (!(elements === sessionInfo) && !(elements === noRaces)) {
     elements.disabled = !elements.disabled;
   }
 }
 
 function hideElements(elements) {
   elements.style.display = 'none';
-  if (!(elements === sessionInfo)) {
+  if (!(elements === sessionInfo) && !(elements === noRaces)) {
     elements.disabled = !elements.disabled;
   }
 }
@@ -159,9 +162,11 @@ socket.on('upcoming_session', data => {
   upcomingSessionData = data;
   if (endSessionStatus && upcomingSessionData.sessionId === 0) {
     hideElements(sessionInfo);
+    showElements(noRaces);
     start.disabled = !start.disabled;
   } else if (endSessionStatus && !(upcomingSessionData.sessionId === 0)) {
     showElements(sessionInfo);
+    hideElements(noRaces);
     start.disabled = !start.disabled;
   }
 });

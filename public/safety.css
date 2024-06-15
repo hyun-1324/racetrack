@@ -21,6 +21,16 @@ td {
   text-align: center;
 }
 
+p {
+  display: block;
+  font-size: 30px;
+  margin-top: 20px;
+}
+
+#end {
+  display: none;
+}
+
 #mainControllerContainer {
   display: flex;
   justify-content: space-between;
@@ -36,6 +46,10 @@ td {
   padding: 2px 5px;
 }
 
+#noRaces {
+  display: none;
+}
+
 .buttons {
   font-size: 20px;
   margin-bottom: 7px;
@@ -44,10 +58,6 @@ td {
 }
 
 .modeButtons {
-  display: none;
-}
-
-#end {
   display: none;
 }
 
