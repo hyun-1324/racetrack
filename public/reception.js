@@ -1,5 +1,10 @@
 import { sessionData } from './classes.js';
 
+document.getElementById('addSession').addEventListener('click', addSession);
+document
+  .getElementById('removeSession')
+  .addEventListener('click', removeSessions);
+
 let sessionIdCounter = 1;
 
 function addSession() {
@@ -28,7 +33,7 @@ function addSession() {
   const cellActions = newRow.insertCell(10);
   const editButton = document.createElement('button');
   editButton.textContent = 'Save';
-  editButton.onclick = () => editDrivers(newRow);
+  editButton.addEventListener('click', () => editDrivers(newRow));
   cellActions.appendChild(editButton);
 }
 
@@ -59,8 +64,8 @@ function editDrivers(row) {
   ) {
     const sessionId = row.cells[1].textContent;
 
-    const sessionData = new sessionData(sessionId, driverNameList);
-    socket.emit('update_session', sessionData);
+    const sessionInfoData = new sessionData(sessionId, driverNameList);
+    socket.emit('update_session', sessionInfoData);
   }
 
   const button = row.getElementsByTagName('button');
@@ -112,6 +117,3 @@ socket.on('end_time', data => {
     }
   }
 });
-
-window.addSession = addSession;
-window.removeSessions = removeSessions;

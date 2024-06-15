@@ -13,17 +13,22 @@
   </head>
   <body>
     <h2>Safety control</h2>
-    <div class="buttons">
-      <button onclick="startRace()" id="start">Start Race</button>
-      <button onclick="endSession()" id="end" disabled>End Session</button>
+    <div id="mainControllerContainer">
+      <div id="currentModeBox">
+        Current Mode: <span id="currentMode">Danger</span>
+      </div>
+      <div class="buttons">
+        <button id="start">Start Race</button>
+        <button id="end" disabled>End Session</button>
+      </div>
     </div>
     <div class="timer" id="timer">00:00:00</div>
     <div class="modeButtons">
       <h3>Race modes</h3>
-      <button onclick="setMode('safe')" id="safe" disabled>Safe</button>
-      <button onclick="setMode('hazard')" id="hazard" disabled>Hazard</button>
-      <button onclick="setMode('danger')" id="danger" disabled>Danger</button>
-      <button onclick="setMode('finish')" id="finish" disabled>Finish</button>
+      <button id="safe" disabled>Safe</button>
+      <button id="hazard" disabled>Hazard</button>
+      <button id="danger" disabled>Danger</button>
+      <button id="finish" disabled>Finish</button>
     </div>
 
     <div id="sessionInfo">

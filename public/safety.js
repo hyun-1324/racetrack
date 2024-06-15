@@ -6,6 +6,7 @@ const safe = document.getElementById('safe');
 const hazard = document.getElementById('hazard');
 const danger = document.getElementById('danger');
 const finish = document.getElementById('finish');
+const currentMode = document.getElementById('currentMode');
 const sessionInfo = document.getElementById('sessionInfo');
 const modeButtons = document.querySelector('.modeButtons');
 let sessionId = document.getElementById('sessionId').textContent;
@@ -14,10 +15,17 @@ let endTime;
 let endSessionStatus = true;
 let upcomingSessionData = new sessionData(0, ['', '', '', '', '', '', '', '']);
 
+start.addEventListener('click', startRace);
+end.addEventListener('click', endSession);
+safe.addEventListener('click', () => setMode('safe'));
+hazard.addEventListener('click', () => setMode('hazard'));
+danger.addEventListener('click', () => setMode('danger'));
+finish.addEventListener('click', () => setMode('finish'));
+
 function startRace() {
   timer();
   socket.emit('end_time', new endTimeData(sessionId, endTime));
-  socket.emit('racemode', 'safe');
+  setMode('safe');
   toggleModeButtonsState();
   hideElements(start);
   showElements(modeButtons);
@@ -25,7 +33,7 @@ function startRace() {
 }
 
 function endSession() {
-  socket.emit('racemode', 'danger');
+  setMode('danger');
   hideElements(end);
   showElements(start);
   endSessionStatus = true;
@@ -44,15 +52,32 @@ function endSession() {
 
 function setMode(mode) {
   socket.emit('racemode', mode);
+  setCurrentModeOnDisplay(mode);
 
   if (mode === 'finish') {
     let now = new Date().getTime();
     socket.emit('end_time', new endTimeData(sessionId, now));
     clearInterval(countdownFunction);
-    document.getElementById('timer').innerHTML = 'Game ended';
+    document.getElementById('timer').innerHTML = 'Race Completed!';
     toggleModeButtonsState();
     hideElements(modeButtons);
     showElements(end);
+  }
+}
+
+function setCurrentModeOnDisplay(mode) {
+  if (mode === 'safe') {
+    currentMode.textContent = 'Safe';
+    currentMode.style.backgroundColor = 'green';
+  } else if (mode === 'hazard') {
+    currentMode.textContent = 'Hazard';
+    currentMode.style.backgroundColor = 'yellow';
+  } else if (mode === 'danger') {
+    currentMode.textContent = 'Danger';
+    currentMode.style.backgroundColor = 'red';
+  } else if (mode === 'finish') {
+    currentMode.textContent = 'Finish';
+    currentMode.style.backgroundColor = 'white';
   }
 }
 
@@ -124,9 +149,8 @@ async function timer() {
         useGrouping: false,
       });
 
-    // If the count down is over, write some text
     if (distance < 0) {
-      finishMode();
+      setMode('finish');
     }
   }, 10);
 }
@@ -141,7 +165,3 @@ socket.on('upcoming_session', data => {
     start.disabled = !start.disabled;
   }
 });
-
-window.startRace = startRace;
-window.endSession = endSession;
-window.setMode = setMode;

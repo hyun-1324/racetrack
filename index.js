@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { checkAccessKeysExist, checkAccess } from './accessKey.js';
 import { initializeDb } from './database/initializeDb.js';
+import { sessionData } from './public/classes.js';
 
 // Check that access keys are set
 const result = checkAccessKeysExist();
@@ -82,7 +83,8 @@ initializeDb()
         io.emit('end_time', endTime);
       });
 
-      socket.on('update_session', sessionData => {
+      socket.on('update_session', data => {
+        const upcomingSessionData = new sessionData();
         io.emit('upcoming_session', upcomingSessionData);
       });
     });
