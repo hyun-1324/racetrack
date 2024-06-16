@@ -1,0 +1,82 @@
+body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  overflow-wrap: break-word;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid black;
+}
+
+th,
+td {
+  box-sizing: border-box;
+  padding: 10px;
+  text-align: center;
+}
+
+p {
+  display: block;
+  font-size: 30px;
+  margin-top: 20px;
+}
+
+#end {
+  display: none;
+}
+
+#mainControllerContainer {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+}
+
+#currentModeBox {
+  padding-top: 5px;
+}
+
+#currentMode {
+  background-color: red;
+  padding: 2px 5px;
+}
+
+#noRaces {
+  display: none;
+}
+
+.buttons {
+  font-size: 20px;
+  margin-bottom: 7px;
+  margin-right: 7px;
+  text-align: end;
+}
+
+.modeButtons {
+  display: none;
+}
+
+.timer {
+  font-size: 2em;
+  text-align: center;
+}
+
+/* 
+.checkered-background {
+  background-image: linear-gradient(
+    45deg,
+    #ffffff 25%,
+    #000000 25%,
+    #000000 50%,
+    #ffffff 50%,
+    #ffffff 75%,
+    #000000 75%,
+    #000000 100%
+  );
+  background-size: 20px 20px;
+} */
