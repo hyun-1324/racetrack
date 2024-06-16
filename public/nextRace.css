@@ -3,6 +3,13 @@ body {
   overflow-wrap: break-word;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 table {
   align-items: center;
   width: 100%;
@@ -20,6 +27,10 @@ th,
 td {
   box-sizing: border-box;
   padding: 10px;
+}
+
+#fullScreenButton {
+  margin-right: 20px;
 }
 
 #sessionInfo {
