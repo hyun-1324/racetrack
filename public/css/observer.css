@@ -1,0 +1,66 @@
+body {
+    background-color: #b7b6b6;
+    font-family: Arial, sans-serif;
+}
+
+#headers {
+    display:flex;
+    justify-content: space-between;
+    background-color: white;
+    align-items: center;
+}
+
+h1 {
+    margin-left: 2rem;
+}
+
+#sessionMessage {
+    margin-right: 2rem;
+    font-size: larger;
+    font-weight: bold;
+    padding: 1rem;
+    border: #008CBA 2px solid;
+}
+
+#buttongrid {
+    display: grid;
+    grid-gap: 10px;
+    margin: 10px;
+    justify-items: center; 
+    align-items: center;
+}
+
+.carButton {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    font-size: 10rem;
+    border: thin solid black;
+}
+
+.carButton:active {
+    background-color: #008CBA;
+}
+
+@media (min-width: 600px) and (max-width: 800px){
+    #buttongrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .carButton {
+        width: 40vw;
+        height: 20vh;
+    }
+}
+
+@media (min-width: 801px) and (max-width: 1280px) {
+    #buttongrid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    .carButton {
+        width: 20vw;
+        height: 40vh;
+    }
+}
+
+
+
