@@ -4,13 +4,12 @@ const sessionInfo = document.getElementById('sessionInfo');
 const noRaces = document.getElementById('noRaces');
 const proceedMessage = document.getElementById('proceedMessage');
 const fullscreenButton = document.getElementById('fullScreenButton');
-let sessionId = document.getElementById('sessionId').textContent;
+let sessionId = document.getElementById('sessionId');
 
 let nextSessionData = new sessionData(0, ['', '', '', '', '', '', '', '']);
 
 socket.on('next_session', data => {
   nextSessionData = data;
-  console.log(nextSessionData);
   if (nextSessionData.sessionId === 0) {
     sessionInfo.style.display = 'none';
     noRaces.style.display = 'block';
@@ -21,7 +20,7 @@ socket.on('next_session', data => {
     sessionInfo.style.display = 'block';
     proceedMessage.style.display = 'block';
     noRaces.style.display = 'none';
-    sessionId = nextSessionData.sessionId;
+    sessionId.textContent = nextSessionData.sessionId;
     addDriversInfo(nextSessionData.driverNameList);
   } else if (
     !(nextSessionData.sessionId === 0) &&
@@ -30,7 +29,7 @@ socket.on('next_session', data => {
     sessionInfo.style.display = 'block';
     proceedMessage.style.display = 'none';
     noRaces.style.display = 'none';
-    sessionId = nextSessionData.sessionId;
+    sessionId.textContent = nextSessionData.sessionId;
     addDriversInfo(nextSessionData.driverNameList);
   }
 });
@@ -38,8 +37,12 @@ socket.on('next_session', data => {
 function addDriversInfo(driverNameList) {
   for (let i = 0; i < 8; i++) {
     const driverName = document.getElementById(`car${[i + 1]}`);
-
-    driverName.textContent = driverNameList[i];
+    if (driverNameList[i] === '') {
+      driverName.style.display = 'none';
+    } else {
+      driverName.style.display = 'block';
+      driverName.textContent = `Car${i + 1}: ` + driverNameList[i];
+    }
   }
 }
 

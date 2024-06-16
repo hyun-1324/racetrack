@@ -3,30 +3,26 @@ body {
   overflow-wrap: break-word;
 }
 
+.driversName {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  font-size: 50px;
+  justify-items: center;
+  align-items: start;
+}
+
+.driversName p {
+  margin: 0;
+  text-align: left;
+  width: 100%;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-}
-
-table {
-  align-items: center;
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 70px;
-}
-
-table,
-th,
-td {
-  border: 1px solid black;
-}
-
-th,
-td {
-  box-sizing: border-box;
-  padding: 10px;
 }
 
 #fullScreenButton {
@@ -39,8 +35,6 @@ td {
 
 #noRaces {
   display: block;
-  font-size: 30px;
-  margin-top: 20px;
 }
 
 @keyframes blink {
@@ -57,5 +51,5 @@ td {
   animation: blink 1s infinite;
   color: red;
   text-align: center;
-  font-size: 70px;
+  font-size: 50px;
 }
