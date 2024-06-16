@@ -25,7 +25,7 @@ finish.addEventListener('click', () => setMode('finish'));
 
 function startRace() {
   timer();
-  socket.emit('end_time', new endTimeData(sessionId, endTime));
+  socket.emit('end_time', new endTimeData(sessionId, endTime, 'start'));
   setMode('safe');
   toggleModeButtonsState();
   hideElements(start);
@@ -43,13 +43,16 @@ function endSession() {
     sessionId = 0;
     hideElements(sessionInfo);
     showElements(noRaces);
-    start.disabled = !start.disabled;
+    start.disabled = true;
   } else {
     sessionId = upcomingSessionData.sessionId;
     for (let i = 1; i < 9; i++) {
       const name = document.getElementById(`car${i}`);
       name.textContent = upcomingSessionData.driverNameList[i - 1];
     }
+    upcomingSessionData.sessionStatus = 'ready';
+    start.disabled = false;
+    socket.emit('update_session', upcomingSessionData);
   }
 }
 
@@ -58,7 +61,7 @@ function setMode(mode) {
   setCurrentModeOnDisplay(mode);
 
   if (mode === 'finish') {
-    let now = new Date().getTime();
+    const now = new Date().getTime();
     socket.emit('end_time', new endTimeData(sessionId, now));
     clearInterval(countdownFunction);
     document.getElementById('timer').innerHTML = 'Race Completed!';
@@ -163,10 +166,11 @@ socket.on('upcoming_session', data => {
   if (endSessionStatus && upcomingSessionData.sessionId === 0) {
     hideElements(sessionInfo);
     showElements(noRaces);
-    start.disabled = !start.disabled;
+    start.disabled = true;
   } else if (endSessionStatus && !(upcomingSessionData.sessionId === 0)) {
     showElements(sessionInfo);
     hideElements(noRaces);
-    start.disabled = !start.disabled;
+    upcomingSessionData.sessionStatus = 'ready';
+    start.disabled = false;
   }
 });

@@ -1,14 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Next Race</title>
     <script type="module" src="/public/nextRace.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script>socket = io();</script>
-</head>
-<body>
-    
-</body>
+    <script>
+      socket = io();
+    </script>
+    <link rel="stylesheet" href="/public/nextRace.css" />
+  </head>
+  <body>
+    <h1>Next Race</h1>
+    <div id="sessionInfo">
+      <h2>Session ID: <span id="sessionId">0</span></h2>
+      <h2 id="proceedMessage">Proceed To The Peddock</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Car 1</th>
+            <th>Car 2</th>
+            <th>Car 3</th>
+            <th>Car 4</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="car1"></td>
+            <td id="car2"></td>
+            <td id="car3"></td>
+            <td id="car4"></td>
+          </tr>
+          <tr>
+            <th>Car 5</th>
+            <th>Car 6</th>
+            <th>Car 7</th>
+            <th>Car 8</th>
+          </tr>
+          <tr>
+            <td id="car5"></td>
+            <td id="car6"></td>
+            <td id="car7"></td>
+            <td id="car8"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p id="noRaces">No Upcoming Race</p>
+  </body>
 </html>

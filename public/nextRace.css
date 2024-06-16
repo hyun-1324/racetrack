@@ -1,0 +1,50 @@
+body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  overflow-wrap: break-word;
+}
+
+table {
+  align-items: center;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 70px;
+}
+
+table,
+th,
+td {
+  border: 1px solid black;
+}
+
+th,
+td {
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+#sessionInfo {
+  display: none;
+}
+
+#noRaces {
+  display: block;
+  font-size: 30px;
+  margin-top: 20px;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+#proceedMessage {
+  animation: blink 1s infinite;
+  color: red;
+  text-align: center;
+  font-size: 70px;
+}
