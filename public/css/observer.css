@@ -8,6 +8,7 @@ body {
     justify-content: space-between;
     background-color: white;
     align-items: center;
+    max-height: 10vh;
 }
 
 h1 {
@@ -18,7 +19,7 @@ h1 {
     margin-right: 2rem;
     font-size: larger;
     font-weight: bold;
-    padding: 1rem;
+    padding: 0.25rem;
     border: #008CBA 2px solid;
 }
 
@@ -28,49 +29,38 @@ h1 {
     margin: 1rem;
     justify-items: center; 
     align-items: center;
+    height: 80vh;
 }
 
 .carButton {
     background-color: #4CAF50;
     color: white;
     font-weight: bold;
-    font-size: 10rem;
+    font-size: 13vh;
     border: thin solid black;
+    width: 100%;
+    height: 100%;
 }
 
 .carButton:active {
     background-color: #008CBA;
 }
 
-@media (min-width: 600px) and (max-width: 800px){
+
+
+@media (max-width: 759px){
     #buttongrid {
         grid-template-columns: repeat(2, 1fr);
     }
-    .carButton {
-        width: 40vw;
-        height: 20vh;
-    }
 }
 
-@media (min-width: 801px) and (max-width: 1280px) {
+@media (min-width: 760px) {
     #buttongrid {
         grid-template-columns: repeat(4, 1fr);
     }
-    .carButton {
-        width: 20vw;
-        height: 39vh;
-    }
 }
 
-@media (min-width: 1281px) {
-    #buttongrid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    .carButton {
-        width: 20vw;
-        height: 40vh;
-    }
-}
+
 
 
 
