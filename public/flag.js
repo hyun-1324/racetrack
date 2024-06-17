@@ -1,17 +1,21 @@
+const bodyStyle = document.body.style;
+const fullscreenButton = document.getElementById('fullScreenButton');
+
 socket.on('race_mode', data => {
   if (data === 'safe') {
-    document.body.style.backgroundColor = 'green';
+    bodyStyle.backgroundColor = 'green';
   } else if (data === 'hazard') {
-    document.body.style.backgroundColor = 'yellow';
+    bodyStyle.backgroundColor = 'yellow';
   } else if (data === 'danger') {
-    document.body.style.backgroundColor = 'red';
+    bodyStyle.backgroundColor = 'red';
+    if (document.body.classList.contains('checkered')) {
+      document.body.classList.remove('checkered');
+    }
   } else if (data === 'finish') {
-    document.body.style.backgroundColor = '';
+    bodyStyle.backgroundColor = '';
     document.body.classList.add('checkered');
   }
 });
-
-const fullscreenButton = document.getElementById('fullScreenButton');
 
 fullscreenButton.addEventListener('click', () => {
   if (!document.fullscreenElement) {

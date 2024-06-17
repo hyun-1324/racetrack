@@ -1,0 +1,30 @@
+body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  overflow-wrap: break-word;
+  margin: 0;
+  padding: 0;
+  background-color: red;
+}
+
+.checkered {
+  background-image: url('checkered.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+#fullScreenButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 5px 10px;
+  font-size: 15px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#fullScreenButton:hover {
+  background-color: #444;
+}
