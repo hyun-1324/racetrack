@@ -12,7 +12,7 @@ function addSession() {
     .getElementById('sessionsTable')
     .getElementsByTagName('tbody')[0];
   const newRow = tableBody.insertRow();
-  socket.emit('update_session', new sessionData(sessionIdCounter));
+  socket.emit('update_session', new sessionData(sessionIdCounter, 'add'));
 
   const cellSelect = newRow.insertCell(0);
   const checkbox = document.createElement('input');
@@ -64,7 +64,7 @@ function editDrivers(row) {
   ) {
     const sessionId = row.cells[1].textContent;
 
-    const sessionInfoData = new sessionData(sessionId, driverNameList);
+    const sessionInfoData = new sessionData(sessionId, 'edit', driverNameList);
     socket.emit('update_session', sessionInfoData);
   }
 
@@ -96,8 +96,10 @@ function removeSessions() {
     const row = rows[i];
     const checkbox = row.getElementsByTagName('input')[0];
     if (checkbox.checked) {
-      const data = { sessionId: row.cells[1].textContent };
-      socket.emit('remove_session', data);
+      socket.emit(
+        'remove_session',
+        new sessionData(row.cells[1].textContent, 'remove')
+      );
       tableBody.removeChild(row);
     }
   }

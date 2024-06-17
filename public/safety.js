@@ -25,7 +25,7 @@ finish.addEventListener('click', () => setMode('finish'));
 
 function startRace() {
   timer();
-  socket.emit('end_time', new endTimeData(sessionId, endTime, 'start'));
+  socket.emit('end_time', new endTimeData(sessionId, 'start', endTime));
   setMode('safe');
   toggleModeButtonsState();
   hideElements(start);
@@ -50,9 +50,7 @@ function endSession() {
       const name = document.getElementById(`car${i}`);
       name.textContent = upcomingSessionData.driverNameList[i - 1];
     }
-    upcomingSessionData.sessionStatus = 'ready';
     start.disabled = false;
-    socket.emit('update_session', upcomingSessionData);
   }
 }
 
@@ -170,7 +168,11 @@ socket.on('upcoming_session', data => {
   } else if (endSessionStatus && !(upcomingSessionData.sessionId === 0)) {
     showElements(sessionInfo);
     hideElements(noRaces);
-    upcomingSessionData.sessionStatus = 'ready';
+    sessionId = upcomingSessionData.sessionId;
+    for (let i = 1; i < 9; i++) {
+      const name = document.getElementById(`car${i}`);
+      name.textContent = upcomingSessionData.driverNameList[i - 1];
+    }
     start.disabled = false;
   }
 });

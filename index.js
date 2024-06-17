@@ -80,8 +80,10 @@ initializeDb()
       });
 
       socket.on('end_time', endTime => {
+        const upcomingSessionData = new sessionData();
         const nextSessionData = new sessionData();
         io.emit('end_time', endTime);
+        io.emit('upcoming_session', upcomingSessionData); // if endTime.action = start
         io.emit('next_session', nextSessionData);
       });
 
