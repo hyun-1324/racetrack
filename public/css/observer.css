@@ -24,8 +24,8 @@ h1 {
 
 #buttongrid {
     display: grid;
-    grid-gap: 10px;
-    margin: 10px;
+    gap: 1rem;
+    margin: 1rem;
     justify-items: center; 
     align-items: center;
 }
@@ -58,7 +58,7 @@ h1 {
     }
     .carButton {
         width: 20vw;
-        height: 40vh;
+        height: 39vh;
     }
 }
 
