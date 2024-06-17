@@ -23,8 +23,8 @@ hazard.addEventListener('click', () => setMode('hazard'));
 danger.addEventListener('click', () => setMode('danger'));
 finish.addEventListener('click', () => setMode('finish'));
 
-function startRace() {
-  timer();
+async function startRace() {
+  await timer();
   socket.emit('end_time', new endTimeData(sessionId, 'start', endTime));
   setMode('safe');
   toggleModeButtonsState();
@@ -38,8 +38,12 @@ function endSession() {
   hideElements(end);
   showElements(start);
   endSessionStatus = true;
+  socket.emit('end_time', new endTimeData(sessionId, 'endSession'));
 
-  if (upcomingSessionData.sessionId === 0) {
+  if (
+    upcomingSessionData.sessionId === 0 ||
+    upcomingSessionData.sessionId === undefined
+  ) {
     sessionId = 0;
     hideElements(sessionInfo);
     showElements(noRaces);
@@ -55,12 +59,11 @@ function endSession() {
 }
 
 function setMode(mode) {
-  socket.emit('racemode', mode);
+  socket.emit('race_mode', mode);
   setCurrentModeOnDisplay(mode);
 
   if (mode === 'finish') {
-    const now = new Date().getTime();
-    socket.emit('end_time', new endTimeData(sessionId, 'finish', now));
+    socket.emit('end_time', new endTimeData(sessionId, 'finish'));
     clearInterval(countdownFunction);
     document.getElementById('timer').innerHTML = 'Race Completed!';
     toggleModeButtonsState();

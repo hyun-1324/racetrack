@@ -26,7 +26,20 @@ body {
 }
 
 #fullScreenButton {
-  margin-right: 20px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 5px 10px;
+  font-size: 15px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#fullScreenButton:hover {
+  background-color: #444;
 }
 
 #sessionInfo {

@@ -1,5 +1,5 @@
 export class endTimeData {
-  constructor(sessionId, endTime, action) {
+  constructor(sessionId, action, endTime) {
     this.sessionId = sessionId;
     this.action = action;
     this.endTime = endTime;
