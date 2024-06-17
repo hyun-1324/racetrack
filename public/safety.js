@@ -60,7 +60,7 @@ function setMode(mode) {
 
   if (mode === 'finish') {
     const now = new Date().getTime();
-    socket.emit('end_time', new endTimeData(sessionId, now));
+    socket.emit('end_time', new endTimeData(sessionId, 'finish', now));
     clearInterval(countdownFunction);
     document.getElementById('timer').innerHTML = 'Race Completed!';
     toggleModeButtonsState();
