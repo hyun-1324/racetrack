@@ -23,9 +23,9 @@ hazard.addEventListener('click', () => setMode('hazard'));
 danger.addEventListener('click', () => setMode('danger'));
 finish.addEventListener('click', () => setMode('finish'));
 
-function startRace() {
-  timer();
-  socket.emit('end_time', new endTimeData(sessionId, endTime));
+async function startRace() {
+  await timer();
+  socket.emit('end_time', new endTimeData(sessionId, 'start', endTime));
   setMode('safe');
   toggleModeButtonsState();
   hideElements(start);
@@ -38,28 +38,32 @@ function endSession() {
   hideElements(end);
   showElements(start);
   endSessionStatus = true;
+  socket.emit('end_time', new endTimeData(sessionId, 'endSession'));
 
-  if (upcomingSessionData.sessionId === 0) {
+  if (
+    upcomingSessionData.sessionId === 0 ||
+    upcomingSessionData.sessionId === undefined
+  ) {
     sessionId = 0;
     hideElements(sessionInfo);
     showElements(noRaces);
-    start.disabled = !start.disabled;
+    start.disabled = true;
   } else {
     sessionId = upcomingSessionData.sessionId;
     for (let i = 1; i < 9; i++) {
       const name = document.getElementById(`car${i}`);
       name.textContent = upcomingSessionData.driverNameList[i - 1];
     }
+    start.disabled = false;
   }
 }
 
 function setMode(mode) {
-  socket.emit('racemode', mode);
+  socket.emit('race_mode', mode);
   setCurrentModeOnDisplay(mode);
 
   if (mode === 'finish') {
-    let now = new Date().getTime();
-    socket.emit('end_time', new endTimeData(sessionId, now));
+    socket.emit('end_time', new endTimeData(sessionId, 'finish'));
     clearInterval(countdownFunction);
     document.getElementById('timer').innerHTML = 'Race Completed!';
     toggleModeButtonsState();
@@ -163,10 +167,15 @@ socket.on('upcoming_session', data => {
   if (endSessionStatus && upcomingSessionData.sessionId === 0) {
     hideElements(sessionInfo);
     showElements(noRaces);
-    start.disabled = !start.disabled;
+    start.disabled = true;
   } else if (endSessionStatus && !(upcomingSessionData.sessionId === 0)) {
     showElements(sessionInfo);
     hideElements(noRaces);
-    start.disabled = !start.disabled;
+    sessionId = upcomingSessionData.sessionId;
+    for (let i = 1; i < 9; i++) {
+      const name = document.getElementById(`car${i}`);
+      name.textContent = upcomingSessionData.driverNameList[i - 1];
+    }
+    start.disabled = false;
   }
 });

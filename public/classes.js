@@ -1,6 +1,7 @@
 export class endTimeData {
-  constructor(sessionId, endTime) {
+  constructor(sessionId, action, endTime) {
     this.sessionId = sessionId;
+    this.action = action;
     this.endTime = endTime;
   }
 }
@@ -18,8 +19,9 @@ export class lapTime {
 // Class for data being sent via 'driverInfo' socket event by receptionist
 // Action options: 'add', 'remove', 'edit'
 export class sessionData {
-  constructor(sessionId, driverNameList) {
+  constructor(sessionId, action, driverNameList, sessionStatus) {
     this.sessionId = sessionId;
+    this.action = action;
     this.driverNameList = driverNameList;
   }
 }

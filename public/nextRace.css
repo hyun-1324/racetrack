@@ -1,0 +1,68 @@
+body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  overflow-wrap: break-word;
+}
+
+.driversName {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  font-size: 50px;
+  justify-items: center;
+  align-items: start;
+}
+
+.driversName p {
+  margin: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#fullScreenButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 5px 10px;
+  font-size: 15px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#fullScreenButton:hover {
+  background-color: #444;
+}
+
+#sessionInfo {
+  display: none;
+}
+
+#noRaces {
+  display: block;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+#proceedMessage {
+  animation: blink 1s infinite;
+  color: red;
+  text-align: center;
+  font-size: 50px;
+}

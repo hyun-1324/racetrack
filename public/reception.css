@@ -17,11 +17,30 @@ td {
 th,
 td {
   box-sizing: border-box;
-  padding: 10px;
+  padding: 5px;
   text-align: center;
+  font-size: 12px;
+}
+
+td input[type='text'] {
+  width: 100px;
+  font-size: 12px;
 }
 
 .buttons {
   text-align: right;
   margin-bottom: 10px;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  th,
+  td {
+    padding: 3px;
+    font-size: 10px;
+  }
 }

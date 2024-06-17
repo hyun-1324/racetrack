@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Countdown</title>
     <script type="module" src="/public/countdown.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script>socket = io();</script>
-</head>
-<body>
-    
-</body>
+    <script>
+      socket = io();
+    </script>
+    <link rel="stylesheet" href="/public/countdown.css" />
+  </head>
+  <body>
+    <div class="timer" id="timer">00:00:00</div>
+    <button id="fullScreenButton">Full Screen</button>
+  </body>
 </html>

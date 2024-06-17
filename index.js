@@ -80,12 +80,18 @@ initializeDb()
       });
 
       socket.on('end_time', endTime => {
+        const upcomingSessionData = new sessionData();
+        const nextSessionData = new sessionData();
         io.emit('end_time', endTime);
+        io.emit('upcoming_session', upcomingSessionData); // if endTime.action = ready
+        io.emit('next_session', nextSessionData); // if endTime.action = start
       });
 
       socket.on('update_session', data => {
         const upcomingSessionData = new sessionData();
+        const nextSessionData = new sessionData();
         io.emit('upcoming_session', upcomingSessionData);
+        io.emit('next_session', nextSessionData);
       });
     });
 
