@@ -7,7 +7,7 @@ body {
 }
 
 .checkered {
-  background-image: url('checkered.jpg');
+  background-image: url('../checkered.jpg');
   background-size: cover;
   background-position: center;
 }

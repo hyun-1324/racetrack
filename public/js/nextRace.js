@@ -1,4 +1,4 @@
-import { sessionData } from './classes.js';
+import { sessionData } from '../classes.js';
 
 const sessionInfo = document.getElementById('sessionInfo');
 const noRaces = document.getElementById('noRaces');

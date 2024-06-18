@@ -6,13 +6,19 @@ export class endTimeData {
   }
 }
 
+// Class for data being sent via 'racemode' socket event by security official
+// Mode options: 'safe', 'hazard', 'danger', 'finish'
+export class racemodeData {
+  constructor(mode) {
+    this.mode = mode;
+  }
+}
+
 // Class for data being sent via 'lap' socket event by lap-line-observer
 export class lapTime {
-  constructor(sessionId, carNumber, lapRound, fastestLapTime) {
-    this.sessionId = sessionId;
+  constructor(carNumber, laplineCrossed) {
     this.carNumber = carNumber;
-    this.lapRound = lapRound;
-    this.fastestlapTime = fastestLapTime;
+    this.laplineCrossed = laplineCrossed;
   }
 }
 

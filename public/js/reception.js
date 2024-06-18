@@ -1,4 +1,4 @@
-import { sessionData } from './classes.js';
+import { sessionData } from '../classes.js';
 
 document.getElementById('addSession').addEventListener('click', addSession);
 document

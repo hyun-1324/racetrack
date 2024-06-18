@@ -1,4 +1,4 @@
-import { endTimeData, sessionData } from './classes.js';
+import { endTimeData, sessionData } from '../classes.js';
 
 const start = document.getElementById('start');
 const end = document.getElementById('end');

@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lap-Line Observer</title>
-    <script type="module" src="/public/observer.js"></script>
+    <script type="module" src="/public/js/observer.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>socket = io();</script>
+    <link rel="stylesheet" href="/public/css/observer.css">
 </head>
 <body>
-    
+    <div id="headers">
+        <h1>Lap-line observer</h1>
+        <div id="sessionMessage">No active race session</div>
+    </div>
+    <div id="buttongrid"></div>
 </body>
 </html>
