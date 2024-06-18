@@ -6,7 +6,16 @@ const proceedMessage = document.getElementById('proceedMessage');
 const fullscreenButton = document.getElementById('fullScreenButton');
 let sessionId = document.getElementById('sessionId');
 
-let nextSessionData = new sessionData(0, ['', '', '', '', '', '', '', '']);
+let nextSessionData = new sessionData(0, undefined, [
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
+]);
 
 socket.on('next_session', data => {
   nextSessionData = data;
@@ -15,7 +24,7 @@ socket.on('next_session', data => {
     noRaces.style.display = 'block';
   } else if (
     !(nextSessionData.sessionId === 0) &&
-    nextSessionData.sessionStatus === 'ready'
+    nextSessionData.status === 'prepare'
   ) {
     sessionInfo.style.display = 'block';
     proceedMessage.style.display = 'block';
@@ -24,7 +33,7 @@ socket.on('next_session', data => {
     addDriversInfo(nextSessionData.driverNameList);
   } else if (
     !(nextSessionData.sessionId === 0) &&
-    nextSessionData.sessionStatus === 'start'
+    nextSessionData.status === 'start'
   ) {
     sessionInfo.style.display = 'block';
     proceedMessage.style.display = 'none';

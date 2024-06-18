@@ -10,9 +10,7 @@ CREATE TABLE "driver_car_assignments" (
   "session_id" INTEGER,
   "car_num" INTEGER,
   "driver_name" TEXT,
-  FOREIGN KEY("session_id") REFERENCES "sessions"("id") ON DELETE CASCADE,
-  UNIQUE("session_id", "driver_name"),
-  UNIQUE("session_id", "car_num")
+  FOREIGN KEY("session_id") REFERENCES "sessions"("id") ON DELETE CASCADE
 );
 
 CREATE TABLE "lap_times" (

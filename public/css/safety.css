@@ -46,6 +46,10 @@ p {
   padding: 2px 5px;
 }
 
+#sessionInfo {
+  display: none;
+}
+
 #noRaces {
   display: none;
 }
@@ -65,18 +69,3 @@ p {
   font-size: 2em;
   text-align: center;
 }
-
-/* 
-.checkered-background {
-  background-image: linear-gradient(
-    45deg,
-    #ffffff 25%,
-    #000000 25%,
-    #000000 50%,
-    #ffffff 50%,
-    #ffffff 75%,
-    #000000 75%,
-    #000000 100%
-  );
-  background-size: 20px 20px;
-} */

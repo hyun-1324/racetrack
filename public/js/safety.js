@@ -15,7 +15,16 @@ let sessionIdEl = document.getElementById('sessionId');
 let countdownFunction;
 let endTime;
 let endSessionStatus = true;
-let upcomingSessionData = new sessionData(0, ['', '', '', '', '', '', '', '']);
+let upcomingSessionData = new sessionData(0, undefined, [
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
+]);
 
 start.addEventListener('click', startRace);
 end.addEventListener('click', endSession);
@@ -28,7 +37,7 @@ async function startRace() {
   await timer();
   socket.emit('end_time', new endTimeData(sessionId, 'start', endTime));
   setMode('safe');
-  toggleModeButtonsState();
+  activateModeButtons();
   hideElements(start);
   showElements(modeButtons);
   endSessionStatus = false;
@@ -40,6 +49,11 @@ function endSession() {
   showElements(start);
   endSessionStatus = true;
   socket.emit('end_time', new endTimeData(sessionId, 'endSession', endTime));
+
+  for (let i = 1; i < 9; i++) {
+    const name = document.getElementById(`car${i}`);
+    name.textContent = upcomingSessionData.driverNameList[i - 1];
+  }
 }
 
 function setMode(mode) {
@@ -51,7 +65,7 @@ function setMode(mode) {
     socket.emit('end_time', new endTimeData(sessionId, 'finish', endTime));
     clearInterval(countdownFunction);
     document.getElementById('timer').innerHTML = 'Race Completed!';
-    toggleModeButtonsState();
+    deactivateModeButtons();
     hideElements(modeButtons);
     showElements(end);
   }
@@ -73,11 +87,18 @@ function setCurrentModeOnDisplay(mode) {
   }
 }
 
-function toggleModeButtonsState() {
-  safe.disabled = !safe.disabled;
-  hazard.disabled = !hazard.disabled;
-  danger.disabled = !danger.disabled;
-  finish.disabled = !finish.disabled;
+function activateModeButtons() {
+  safe.disabled = false;
+  hazard.disabled = false;
+  danger.disabled = false;
+  finish.disabled = false;
+}
+
+function deactivateModeButtons() {
+  safe.disabled = true;
+  hazard.disabled = true;
+  danger.disabled = true;
+  finish.disabled = true;
 }
 
 function showElements(elements) {
