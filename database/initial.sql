@@ -1,7 +1,7 @@
 CREATE TABLE "sessions" (
   "id" INTEGER PRIMARY KEY,
-  "status", TEXT,
-  "endTime" DATETIME
+  "status" TEXT,
+  "end_time" DATETIME
 );
 
 

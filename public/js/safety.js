@@ -10,7 +10,8 @@ const currentMode = document.getElementById('currentMode');
 const sessionInfo = document.getElementById('sessionInfo');
 const noRaces = document.getElementById('noRaces');
 const modeButtons = document.querySelector('.modeButtons');
-let sessionId = document.getElementById('sessionId').textContent;
+let sessionId = 0;
+let sessionIdEl = document.getElementById('sessionId');
 let countdownFunction;
 let endTime;
 let endSessionStatus = true;
@@ -39,23 +40,6 @@ function endSession() {
   showElements(start);
   endSessionStatus = true;
   socket.emit('end_time', new endTimeData(sessionId, 'endSession', endTime));
-
-  if (
-    upcomingSessionData.sessionId === 0 ||
-    upcomingSessionData.sessionId === undefined
-  ) {
-    sessionId = 0;
-    hideElements(sessionInfo);
-    showElements(noRaces);
-    start.disabled = true;
-  } else {
-    sessionId = upcomingSessionData.sessionId;
-    for (let i = 1; i < 9; i++) {
-      const name = document.getElementById(`car${i}`);
-      name.textContent = upcomingSessionData.driverNameList[i - 1];
-    }
-    start.disabled = false;
-  }
 }
 
 function setMode(mode) {
@@ -173,6 +157,7 @@ socket.on('upcoming_session', data => {
     showElements(sessionInfo);
     hideElements(noRaces);
     sessionId = upcomingSessionData.sessionId;
+    sessionIdEl.textContent = sessionId;
     for (let i = 1; i < 9; i++) {
       const name = document.getElementById(`car${i}`);
       name.textContent = upcomingSessionData.driverNameList[i - 1];
