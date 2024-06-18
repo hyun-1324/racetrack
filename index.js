@@ -168,15 +168,7 @@ async function fetchNextSessionDataFromEndTime(db, endTime) {
   try {
     const findSessionSql =
       'SELECT MIN(id) AS nextSessionId FROM sessions WHERE id > ?';
-    const result = await db.get(
-      findSessionSql,
-      endTime.sessionId,
-      function (err) {
-        if (err) {
-          return console.log(err.message);
-        }
-      }
-    );
+    const result = await db.get(findSessionSql, endTime.sessionId);
 
     if (!result || !result.nextSessionId) {
       nextSessionData.sessionId = 0;
@@ -186,17 +178,9 @@ async function fetchNextSessionDataFromEndTime(db, endTime) {
     nextSessionData.sessionId = result.nextSessionId;
     const fetchDriverInfoSql =
       'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?';
-    const rows = await db.all(
-      fetchDriverInfoSql,
-      result.nextSessionId,
-      function (err) {
-        if (err) {
-          return console.log(err.message);
-        }
-      }
-    );
-    nextSessionData.status = 'prepare';
+    const rows = await db.all(fetchDriverInfoSql, result.nextSessionId);
 
+    nextSessionData.status = 'prepare';
     nextSessionData.driverNameList = rows.map(row => row.driver_name);
     return nextSessionData;
   } catch (error) {
