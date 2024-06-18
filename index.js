@@ -80,14 +80,22 @@ initializeDb()
       });
 
       socket.on('end_time', endTime => {
-        const upcomingSessionData = new sessionData();
-        const nextSessionData = new sessionData();
         io.emit('end_time', endTime);
+        updateSessionStatus(db, endTime);
+
+        if (endTime.action === 'start') {
+          const nextSessionData = getNextSessionData(db, endTime);
+          io.emit('next_session', nextSessionData);
+        } else if (endTime.action === 'finish') {
+        } else if (endTime.action === 'endSession') {
+        }
+        const upcomingSessionData = new sessionData();
         io.emit('upcoming_session', upcomingSessionData); // if endTime.action = ready
-        io.emit('next_session', nextSessionData); // if endTime.action = start
       });
 
-      socket.on('update_session', data => {
+      socket.on('update_session', updatedSession => {
+        updateSessionInfo(db, updatedSession);
+
         const upcomingSessionData = new sessionData();
         const nextSessionData = new sessionData();
         io.emit('upcoming_session', upcomingSessionData);
@@ -107,3 +115,105 @@ initializeDb()
     console.error('Error initializing database:', error.message);
     process.exit(1);
   });
+
+function updateSessionInfo(db, updatedSession) {
+  if (updatedSession.action === 'add') {
+    const sqlSessions =
+      "INSERT INTO sessions (id, status) VALUES (?, 'preparing')";
+    db.run(sqlSessions, [updatedSession.sessionId], function (err) {
+      if (err) {
+        return console.error(err.message);
+      }
+    });
+
+    const sqlAssignments =
+      'INSERT INTO driver_car_assignments (session_id, car_num) VALUES (?, ?)';
+    for (let i = 1; i < 9; i++) {
+      db.run(sqlAssignments, [updatedSession.sessionId, i], function (err) {
+        if (err) {
+          return console.error(err.message);
+        }
+      });
+    }
+  } else if (updatedSession.action === 'remove') {
+    const sql = 'DELETE FROM users WHERE id = ?';
+    db.run(sql, [updatedSession.sessionId], function (err) {
+      if (err) {
+        return console.error(err.message);
+      }
+    });
+  } else if (updatedSession.action === 'edit') {
+    const sql =
+      'UPDATE driver_car_assignments SET driver_name = ? WHERE session_id = ? AND car_num = ?';
+    for (let i = 0; i < 8; i++) {
+      let driverName = updatedSession.driverNameList[i];
+      if (driverName === '') {
+        driverName = null;
+      }
+      db.run(
+        sql,
+        [driverName, updatedSession.sessionId, i + 1],
+        function (err) {
+          if (err) {
+            console.error(err.message);
+          }
+        }
+      );
+    }
+  }
+}
+
+function updateSessionStatus(db, endTime) {
+  const sql = 'UPDATE sessions SET end_time = ?, status = ? WHERE id = ?';
+  db.run(
+    sql,
+    [endTime.endTime, endTime.action, endTime.sessionId],
+    function (err) {
+      if (err) {
+        console.error(err.message);
+      }
+    }
+  );
+}
+
+async function getNextSessionData(db, endTime) {
+  const nextSessionData = new sessionData();
+  try {
+    const findSessionSql =
+      'SELECT MIN(id) AS nextSessionId FROM sessions WHERE id > ?';
+    const result = await new Promise((resolve, reject) => {
+      db.get(findSessionSql, endTime.sessionId, (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row);
+        }
+      });
+    });
+
+    if (!result || !result.nextSessionId) {
+      nextSessionData.sessionId = 0;
+      return nextSessionData;
+    }
+
+    nextSessionData.sessionId = result.nextSessionId;
+
+    const fetchDriverInfoSql =
+      'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?';
+    const rows = await new Promise((resolve, reject) => {
+      db.all(fetchDriverInfoSql, result.nextSessionId, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+
+    nextSessionData.driverNameList = rows.map(row => row.driver_name);
+    return nextSessionData;
+  } catch (error) {
+    console.error('Database error:', error.message);
+    throw new Error('Failed to get next session data');
+  }
+}

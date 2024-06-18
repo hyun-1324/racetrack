@@ -38,7 +38,7 @@ function endSession() {
   hideElements(end);
   showElements(start);
   endSessionStatus = true;
-  socket.emit('end_time', new endTimeData(sessionId, 'endSession'));
+  socket.emit('end_time', new endTimeData(sessionId, 'endSession', endTime));
 
   if (
     upcomingSessionData.sessionId === 0 ||
@@ -63,7 +63,8 @@ function setMode(mode) {
   setCurrentModeOnDisplay(mode);
 
   if (mode === 'finish') {
-    socket.emit('end_time', new endTimeData(sessionId, 'finish'));
+    endTime = new Date().getTime();
+    socket.emit('end_time', new endTimeData(sessionId, 'finish', endTime));
     clearInterval(countdownFunction);
     document.getElementById('timer').innerHTML = 'Race Completed!';
     toggleModeButtonsState();
