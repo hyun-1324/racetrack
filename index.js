@@ -75,23 +75,18 @@ initializeDb()
     const io = new Server(server);
     io.on('connection', socket => {
       socket.on('race_mode', raceMode => {
-        // When we receive 'racemode' event from a client, emit it to all clients
         io.emit('race_mode', raceMode);
       });
 
       socket.on('end_time', endTime => {
-        const upcomingSessionData = new sessionData();
-        const nextSessionData = new sessionData();
         io.emit('end_time', endTime);
-        io.emit('upcoming_session', upcomingSessionData); // if endTime.action = ready
-        io.emit('next_session', nextSessionData); // if endTime.action = start
+        // io.emit('next_session', nextSessionData); // if endTime.action = start
+        // I think we have to get data for next session from the database
       });
 
-      socket.on('update_session', data => {
-        const upcomingSessionData = new sessionData();
-        const nextSessionData = new sessionData();
+      socket.on('update_session', upcomingSessionData => {
         io.emit('upcoming_session', upcomingSessionData);
-        io.emit('next_session', nextSessionData);
+        // We maybe need to get also this session data from the database
       });
     });
 
