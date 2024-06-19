@@ -79,17 +79,32 @@ initializeDb()
         io.emit('race_mode', raceMode);
       });
 
-      socket.on('end_time', endTime => {
-        const upcomingSessionData = new sessionData();
-        const nextSessionData = new sessionData();
+      socket.on('end_time', async endTime => {
         io.emit('end_time', endTime);
-        io.emit('upcoming_session', upcomingSessionData); // if endTime.action = ready
-        io.emit('next_session', nextSessionData); // if endTime.action = start
+        await updateSessionStatus(db, endTime);
+
+        if (endTime.action === 'start') {
+          const nextSessionData = await fetchNextSessionDataFromEndTime(
+            db,
+            endTime
+          );
+          io.emit('next_session', nextSessionData);
+        } else if (endTime.action === 'endSession') {
+          const upcomingSessionData = await fetchNextSessionDataFromEndTime(
+            db,
+            endTime
+          );
+          io.emit('next_session', upcomingSessionData);
+          io.emit('upcoming_session', upcomingSessionData);
+        }
       });
 
-      socket.on('update_session', data => {
-        const upcomingSessionData = new sessionData();
-        const nextSessionData = new sessionData();
+      socket.on('update_session', async updatedSession => {
+        await updateSessionInfo(db, updatedSession);
+        const upcomingSessionData = await fetchUpcomingSessionDataFromUpdate(
+          db
+        );
+        const nextSessionData = await fetchNextSessionDataFromUpdate(db);
         io.emit('upcoming_session', upcomingSessionData);
         io.emit('next_session', nextSessionData);
       });
@@ -107,3 +122,135 @@ initializeDb()
     console.error('Error initializing database:', error.message);
     process.exit(1);
   });
+
+async function updateSessionInfo(db, updatedSession) {
+  try {
+    if (updatedSession.status === 'add') {
+      const sqlSessions = `REPLACE INTO sessions (id, status) VALUES (?, 'prepare');`;
+      await db.run(sqlSessions, [updatedSession.sessionId]);
+
+      const sqlAssignments =
+        'INSERT INTO driver_car_assignments (session_id, car_num) VALUES (?, ?)';
+      for (let i = 1; i < 9; i++) {
+        await db.run(sqlAssignments, [updatedSession.sessionId, i]);
+      }
+    } else if (updatedSession.status === 'remove') {
+      const sql = 'DELETE FROM users WHERE id = ?';
+      await db.run(sql, [updatedSession.sessionId]);
+    } else if (updatedSession.status === 'edit') {
+      const sql =
+        'UPDATE driver_car_assignments SET driver_name = ? WHERE session_id = ? AND car_num = ?';
+      for (let i = 0; i < 8; i++) {
+        let driverName = updatedSession.driverNameList[i];
+        await db.run(sql, [driverName, updatedSession.sessionId, i + 1]);
+      }
+    }
+  } catch (err) {
+    console.error(err.message);
+    throw err;
+  }
+}
+
+async function updateSessionStatus(db, endTime) {
+  const sql = 'UPDATE sessions SET end_time = ?, status = ? WHERE id = ?';
+  await db.run(
+    sql,
+    [endTime.endTime, endTime.action, endTime.sessionId],
+    function (err) {
+      if (err) {
+        console.error(err.message);
+      }
+    }
+  );
+}
+
+async function fetchNextSessionDataFromEndTime(db, endTime) {
+  const nextSessionData = new sessionData();
+  try {
+    const findSessionSql =
+      'SELECT MIN(id) AS nextSessionId FROM sessions WHERE id > ?';
+    const result = await db.get(findSessionSql, endTime.sessionId);
+
+    if (!result || !result.nextSessionId) {
+      nextSessionData.sessionId = 0;
+      return nextSessionData;
+    }
+
+    nextSessionData.sessionId = result.nextSessionId;
+    const fetchDriverInfoSql =
+      'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?';
+    const rows = await db.all(fetchDriverInfoSql, result.nextSessionId);
+
+    if (endTime.action === 'start') {
+      nextSessionData.status = 'start';
+    } else {
+      nextSessionData.status = 'endSession';
+    }
+
+    nextSessionData.driverNameList = rows.map(row => row.driver_name);
+    return nextSessionData;
+  } catch (error) {
+    console.error('Database error:', error.message);
+    throw new Error('Failed to get next session data');
+  }
+}
+
+async function fetchUpcomingSessionDataFromUpdate(db) {
+  try {
+    const upcomingSessionData = new sessionData();
+    let row = await db.get(
+      "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status IN ('start', 'finish')"
+    );
+    upcomingSessionData.status = 'finish';
+    if (!row || !row.upcomingSessionId) {
+      row = await db.get(
+        "SELECT MAX(id) AS upcomingSessionId FROM sessions WHERE status = 'endSession'"
+      );
+      upcomingSessionData.status = 'endSession';
+      if (!row || !row.upcomingSessionId) {
+        row = await db.get(
+          "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status = 'prepare'"
+        );
+        upcomingSessionData.status = 'prepare';
+        if (!row || !row.upcomingSessionId) {
+          upcomingSessionData.sessionId = 0;
+          return upcomingSessionData;
+        }
+      }
+    }
+    upcomingSessionData.sessionId = row.upcomingSessionId;
+    const driverInfo = await db.all(
+      'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
+      [row.upcomingSessionId]
+    );
+    upcomingSessionData.driverNameList = driverInfo.map(r => r.driver_name);
+    return upcomingSessionData;
+  } catch (err) {
+    console.error(err.message);
+    throw err;
+  }
+}
+
+async function fetchNextSessionDataFromUpdate(db) {
+  try {
+    const nextSessionData = new sessionData();
+    const result = await db.get(
+      "SELECT MIN(id) AS nextSessionId FROM sessions WHERE status = 'prepare'"
+    );
+    if (!result || !result.nextSessionId) {
+      nextSessionData.sessionId = 0;
+      return nextSessionData;
+    }
+    nextSessionData.sessionId = result.nextSessionId;
+    const driverInfo = await db.all(
+      'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
+      [result.nextSessionId]
+    );
+    nextSessionData.status = 'prepare';
+    nextSessionData.driverNameList = driverInfo.map(r => r.driver_name);
+    return nextSessionData;
+  } catch (err) {
+    console.error(err.message);
+    throw err;
+  }
+}

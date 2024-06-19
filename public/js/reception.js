@@ -98,7 +98,7 @@ function removeSessions() {
     const checkbox = row.getElementsByTagName('input')[0];
     if (checkbox.checked) {
       socket.emit(
-        'remove_session',
+        'update_session',
         new sessionData(row.cells[1].textContent, 'remove')
       );
       tableBody.removeChild(row);
@@ -107,16 +107,18 @@ function removeSessions() {
 }
 
 socket.on('end_time', data => {
-  const tableBody = document
-    .getElementById('sessionsTable')
-    .getElementsByTagName('tbody')[0];
+  if ((data.action = 'start')) {
+    const tableBody = document
+      .getElementById('sessionsTable')
+      .getElementsByTagName('tbody')[0];
 
-  const rows = tableBody.getElementsByTagName('tr');
+    const rows = tableBody.getElementsByTagName('tr');
 
-  for (let i = 0; i < rows.length; i++) {
-    if (rows[i].cells[1].textContent === data.sessionId) {
-      tableBody.removeChild(rows[i]);
-      break;
+    for (let i = 0; i < rows.length; i++) {
+      if (Number(rows[i].cells[1].textContent) === Number(data.sessionId)) {
+        tableBody.removeChild(rows[i]);
+        break;
+      }
     }
   }
 });
