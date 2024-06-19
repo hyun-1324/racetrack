@@ -115,7 +115,7 @@ socket.on('end_time', data => {
     const rows = tableBody.getElementsByTagName('tr');
 
     for (let i = 0; i < rows.length; i++) {
-      if (rows[i].cells[1].textContent === data.sessionId) {
+      if (Number(rows[i].cells[1].textContent) === Number(data.sessionId)) {
         tableBody.removeChild(rows[i]);
         break;
       }
