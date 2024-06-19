@@ -24,7 +24,7 @@ socket.on('next_session', data => {
     noRaces.style.display = 'block';
   } else if (
     !(nextSessionData.sessionId === 0) &&
-    nextSessionData.status === 'prepare'
+    nextSessionData.status === 'endSession'
   ) {
     sessionInfo.style.display = 'block';
     proceedMessage.style.display = 'block';
@@ -33,7 +33,7 @@ socket.on('next_session', data => {
     addDriversInfo(nextSessionData.driverNameList);
   } else if (
     !(nextSessionData.sessionId === 0) &&
-    nextSessionData.status === 'start'
+    (nextSessionData.status === 'start' || nextSessionData.status === 'prepare')
   ) {
     sessionInfo.style.display = 'block';
     proceedMessage.style.display = 'none';

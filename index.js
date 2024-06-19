@@ -94,6 +94,7 @@ initializeDb()
             db,
             endTime
           );
+          io.emit('next_session', upcomingSessionData);
           io.emit('upcoming_session', upcomingSessionData);
         }
       });
@@ -180,7 +181,12 @@ async function fetchNextSessionDataFromEndTime(db, endTime) {
       'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?';
     const rows = await db.all(fetchDriverInfoSql, result.nextSessionId);
 
-    nextSessionData.status = 'prepare';
+    if (endTime.action === 'start') {
+      nextSessionData.status = 'start';
+    } else {
+      nextSessionData.status = 'endSession';
+    }
+
     nextSessionData.driverNameList = rows.map(row => row.driver_name);
     return nextSessionData;
   } catch (error) {
