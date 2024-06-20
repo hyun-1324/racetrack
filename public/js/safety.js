@@ -104,14 +104,14 @@ function deactivateModeButtons() {
 function showElements(elements) {
   elements.style.display = 'block';
   if (!(elements === sessionInfo) && !(elements === noRaces)) {
-    elements.disabled = !elements.disabled;
+    elements.disabled = false;
   }
 }
 
 function hideElements(elements) {
   elements.style.display = 'none';
   if (!(elements === sessionInfo) && !(elements === noRaces)) {
-    elements.disabled = !elements.disabled;
+    elements.disabled = true;
   }
 }
 
