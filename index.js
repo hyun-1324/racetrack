@@ -75,6 +75,7 @@ initializeDb()
     const io = new Server(server);
     io.on('connection', socket => {
       socket.on('race_mode', raceMode => {
+        saveRaceMode(raceMode);
         // When we receive 'racemode' event from a client, emit it to all clients
         io.emit('race_mode', raceMode);
       });
@@ -107,6 +108,22 @@ initializeDb()
         const nextSessionData = await fetchNextSessionDataFromUpdate(db);
         io.emit('upcoming_session', upcomingSessionData);
         io.emit('next_session', nextSessionData);
+      });
+
+      socket.on('reconnect', async request => {
+        if (request === 'reception') {
+          const fetchDataForPreparation = await fetchreconnectDataforReception(
+            db
+          );
+          io.emit('reconnect_reception', fetchDataForPreparation);
+        } else if (request === 'safety') {
+          const upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(
+            db
+          );
+          const raceMode = await fetchRaceMode(db);
+          io.emit('upcoming_session', upcomingSessionInfo);
+          io.emit('race_mode', raceMode);
+        }
       });
     });
 
@@ -221,6 +238,16 @@ async function fetchUpcomingSessionDataFromUpdate(db) {
       }
     }
     upcomingSessionData.sessionId = row.upcomingSessionId;
+
+    let sessionInfo = await db.get(
+      'SELECT end_time FROM sessions WHERE id = ?',
+      [upcomingSessionData.sessionId]
+    );
+
+    if (sessionInfo.endTime) {
+      upcomingSessionData.endTime = sessionInfo.endTime;
+    }
+
     const driverInfo = await db.all(
       'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
       [row.upcomingSessionId]
@@ -256,4 +283,47 @@ async function fetchNextSessionDataFromUpdate(db) {
     console.error(err.message);
     throw err;
   }
+}
+
+async function fetchreconnectDataforReception(db) {
+  try {
+    const sessionArr = [];
+    const sessionIdsInPreparing = await db.all(
+      "SELECT id FROM sessions WHERE status = 'prepare' ORDER BY id ASC"
+    );
+
+    if (sessionIdsInPreparing.length === 0) {
+      return sessionArr;
+    }
+
+    for (const session of sessionIdsInPreparing) {
+      const sessionDataInPreparing = new sessionData();
+      sessionDataInPreparing.status = 'prepare';
+      sessionDataInPreparing.id = session.id;
+
+      const driverInfo = await db.all(
+        'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
+        [session.id]
+      );
+      sessionDataInPreparing.driverNameList = driverInfo.map(
+        r => r.driver_name
+      );
+      sessionArr.push(sessionDataInPreparing);
+    }
+
+    return sessionArr;
+  } catch (err) {
+    console.error(err.message);
+    throw err;
+  }
+}
+
+function saveRaceMode(db, raceMode) {
+  db.run(`REPLACE INTO race_mode (id, status) VALUES (1, ?);`, [raceMode]);
+}
+
+async function fetchRaceMode(db) {
+  const result = db.get('SELECT mode FROM race_mode WHERE id = 1');
+
+  return result.mode;
 }

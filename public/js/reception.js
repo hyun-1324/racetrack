@@ -122,3 +122,52 @@ socket.on('end_time', data => {
     }
   }
 });
+
+socket.emit('reconnect', 'reception');
+
+socket.on('reconnect_reception', data => {
+  if (data.length === 0) {
+    return;
+  } else {
+    // const tableBody = document
+    //   .getElementById('sessionsTable')
+    //   .getElementsByTagName('tbody')[0];
+    // const rows = tableBody.getElementsByTagName('tr');
+    // for (let i = 0; i <= rows.length; i++) {
+    //   const row = rows[i];
+    //   tableBody.removeChild(row);
+    // }
+    console.log(data);
+    for (let i = 0; i < data.length; i++) {
+      const sessionInfo = data[i];
+      const tableBody = document
+        .getElementById('sessionsTable')
+        .getElementsByTagName('tbody')[0];
+      const newRow = tableBody.insertRow();
+
+      const cellSelect = newRow.insertCell(0);
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      cellSelect.appendChild(checkbox);
+
+      const cellSessionId = newRow.insertCell(1);
+      cellSessionId.textContent = sessionInfo.id;
+
+      for (let i = 2; i <= 9; i++) {
+        const cell = newRow.insertCell(i);
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = `Driver ${i - 1}`;
+        input.maxLength = 15;
+        input.value = sessionInfo.driverNameList[i - 2];
+        cell.appendChild(input);
+      }
+
+      const cellActions = newRow.insertCell(10);
+      const editButton = document.createElement('button');
+      editButton.textContent = 'Save';
+      editButton.addEventListener('click', () => editDrivers(newRow));
+      cellActions.appendChild(editButton);
+    }
+  }
+});

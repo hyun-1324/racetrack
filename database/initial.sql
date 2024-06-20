@@ -13,6 +13,11 @@ CREATE TABLE "driver_car_assignments" (
   FOREIGN KEY("session_id") REFERENCES "sessions"("id") ON DELETE CASCADE
 );
 
+CREATE TABLE "race_mode" (
+  "id" INTEGER PRIMARY KEY,
+  "mode" TEXT
+);
+
 CREATE TABLE "lap_times" (
   "id" INTEGER PRIMARY KEY,
   "session_id" INTEGER NOT NULL,
@@ -21,3 +26,5 @@ CREATE TABLE "lap_times" (
   "lap_time" DECIMAL(10, 3) NOT NULL,
   FOREIGN KEY("session_id") REFERENCES "sessions"("id")
 );
+
+INSERT INTO race_mode (id, mode) VALUES (1, 'danger');
