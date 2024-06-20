@@ -33,10 +33,19 @@ socket.on('next_session', data => {
     addDriversInfo(nextSessionData.driverNameList);
   } else if (
     !(nextSessionData.sessionId === 0) &&
-    (nextSessionData.status === 'start' || nextSessionData.status === 'prepare')
+    nextSessionData.status === 'start'
   ) {
     sessionInfo.style.display = 'block';
     proceedMessage.style.display = 'none';
+    noRaces.style.display = 'none';
+    sessionId.textContent = nextSessionData.sessionId;
+    addDriversInfo(nextSessionData.driverNameList);
+  } else if (
+    !(nextSessionData.sessionId === 0) &&
+    nextSessionData.status === 'prepare'
+  ) {
+    sessionInfo.style.display = 'block';
+    proceedMessage.style.display = 'block';
     noRaces.style.display = 'none';
     sessionId.textContent = nextSessionData.sessionId;
     addDriversInfo(nextSessionData.driverNameList);
@@ -44,9 +53,10 @@ socket.on('next_session', data => {
 });
 
 function addDriversInfo(driverNameList) {
+  document.querySelector('.driverNames').style.display = 'block';
   for (let i = 0; i < 8; i++) {
     const driverName = document.getElementById(`car${[i + 1]}`);
-    if (driverNameList[i] === '') {
+    if (driverNameList[i] === '' || driverNameList[i] === null) {
       driverName.style.display = 'none';
     } else {
       driverName.style.display = 'block';
