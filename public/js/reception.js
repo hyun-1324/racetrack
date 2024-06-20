@@ -27,7 +27,7 @@ function addSession() {
     const input = document.createElement('input');
     input.type = 'text';
     input.placeholder = `Driver ${i - 1}`;
-    input.maxLength = 30;
+    input.maxLength = 15;
     cell.appendChild(input);
   }
 
