@@ -177,9 +177,12 @@ async function fetchNextSessionDataFromEndTime(db, endTime) {
     }
 
     nextSessionData.sessionId = result.nextSessionId;
-    const fetchDriverInfoSql =
-      'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?';
-    const rows = await db.all(fetchDriverInfoSql, result.nextSessionId);
+
+    const driverInfo = await db.all(
+      'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
+      result.nextSessionId
+    );
+    nextSessionData.driverNameList = driverInfo.map(row => row.driver_name);
 
     if (endTime.action === 'start') {
       nextSessionData.status = 'start';
@@ -187,7 +190,6 @@ async function fetchNextSessionDataFromEndTime(db, endTime) {
       nextSessionData.status = 'endSession';
     }
 
-    nextSessionData.driverNameList = rows.map(row => row.driver_name);
     return nextSessionData;
   } catch (error) {
     console.error('Database error:', error.message);
@@ -246,8 +248,9 @@ async function fetchNextSessionDataFromUpdate(db) {
       'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
       [result.nextSessionId]
     );
-    nextSessionData.status = 'prepare';
     nextSessionData.driverNameList = driverInfo.map(r => r.driver_name);
+
+    nextSessionData.status = 'prepare';
     return nextSessionData;
   } catch (err) {
     console.error(err.message);
