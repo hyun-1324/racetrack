@@ -7,14 +7,16 @@
     <script type="module" src="/public/js/leaderBoard.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>socket = io();</script>
+    <link rel="stylesheet" href="/public/css/leaderBoard.css">
 </head>
 <body>
     <div id="raceinfo">
-        <div id="timer"></div>
+        <div id="session">Session: <span id="sessionNumber">-</span> </div>
+        <div id="timer">00:00:00</div>
         <div id="flag"></div>
     </div>
     <h1>Leader Board</h1>
-    <table id="leaderboard">
+    <table id="leaderBoard">
         <tr>
             <th>Car</th>
             <th>Driver</th>
@@ -22,6 +24,7 @@
             <th>Fastest lap</th>
         </tr>
     </table>
-    <button id="fullscreen">Fullscreen</button>
+    <div id="noSessionMessage">No active race session</div>
+    <button id="fullScreenButton">Full screen</button>
 </body>
 </html>
