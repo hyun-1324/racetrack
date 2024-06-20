@@ -135,7 +135,7 @@ async function updateSessionInfo(db, updatedSession) {
         await db.run(sqlAssignments, [updatedSession.sessionId, i]);
       }
     } else if (updatedSession.status === 'remove') {
-      const sql = 'DELETE FROM users WHERE id = ?';
+      const sql = 'DELETE FROM sessions WHERE id = ?';
       await db.run(sql, [updatedSession.sessionId]);
     } else if (updatedSession.status === 'edit') {
       const sql =
