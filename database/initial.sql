@@ -17,7 +17,9 @@ CREATE TABLE "lap_times" (
   "id" INTEGER PRIMARY KEY,
   "session_id" INTEGER NOT NULL,
   "car_num" INTEGER NOT NULL,
-  "lap_number" INTEGER NOT NULL,
-  "lap_time" DECIMAL(10, 3) NOT NULL,
+  "lap_num" INTEGER NOT NULL,
+  "lap_started" INTEGER NOT NULL,
+  "fastest_lap" INTEGER NOT NULL,
   FOREIGN KEY("session_id") REFERENCES "sessions"("id")
 );
+

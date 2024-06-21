@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { checkAccessKeysExist, checkAccess } from './accessKey.js';
 import { initializeDb } from './database/initializeDb.js';
-import { sessionData } from './public/classes.js';
+import { endTimeData, sessionData } from './public/classes.js';
+import { updateLapTime } from './lapTimes.js';
 
 // Check that access keys are set
 const result = checkAccessKeysExist();
@@ -107,6 +108,11 @@ initializeDb()
         const nextSessionData = await fetchNextSessionDataFromUpdate(db);
         io.emit('upcoming_session', upcomingSessionData);
         io.emit('next_session', nextSessionData);
+      });
+
+      socket.on('lap_data', async lapTime  => {
+        const updatedLapTime = await updateLapTime(db, lapTime);
+        io.emit('update_lap_time', updatedLapTime);
       });
     });
 

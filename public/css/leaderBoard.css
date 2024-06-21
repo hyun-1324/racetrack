@@ -1,0 +1,87 @@
+body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  background-color: #b7b6b6;
+}
+
+#raceinfo {
+  display: flex;
+  justify-content: space-evenly;
+  height: 12vh;
+  margin: 2vh;
+}
+#session {
+  font-size: 5vh;
+  align-content: flex-end;
+  margin-bottom: 2vh;
+}
+
+#timer {
+  font-size: 10vh;
+}
+
+#flag {
+  height: 12vh;
+  width: 15vh;
+  background-color: red;
+}
+
+.checkered {
+  background-image: url('../checkered.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+h1 {
+  text-align: center;
+  padding: 1vh;
+}
+
+#leaderBoard {
+  margin: auto;
+  width: 90%;
+  max-height: 70vh;
+  font-size: 3.5vh;
+  background-color: black;
+  display: none;
+}
+
+th {
+  border: #000 solid;
+  padding: 1%;
+  background-color: #4CAF50;
+}
+
+td {
+  border: #000 solid;
+  padding: 0.5%;
+  text-align: center;
+  background-color: white;
+}
+
+#noSessionMessage {
+  margin:auto;
+  text-align: center;
+  font-size: 10vh;
+  margin-top: 10vh;
+  padding: 3vh;
+  border: red solid;
+  width: 80%;
+  background-color: white;
+}
+
+#fullScreenButton {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 5px 10px;
+    font-size: 15px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  #fullScreenButton:hover {
+    background-color: #444;
+  }

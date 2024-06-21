@@ -18,7 +18,7 @@ function setButtons() {
                 button.innerText = i;
                 button.addEventListener('click', () => {
                     let time = new Date().getTime();
-                    socket.emit('lapData', new lapTime(i, time));
+                    socket.emit('lap_data', new lapTime(upcomingSessionData.sessionId, i, time));
                 });
                 buttongrid.appendChild(button);
             };
