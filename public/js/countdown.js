@@ -10,6 +10,7 @@ socket.on('end_time', data => {
     document.getElementById('timer').innerHTML = '00:00:00';
   }
 });
+
 async function timer(endTime) {
   // Update the count down every 1 second
   countdownFunction = setInterval(function () {
@@ -48,6 +49,19 @@ async function timer(endTime) {
     }
   }, 10);
 }
+
+socket.emit('reconnect', 'countdown');
+
+socket.on('countdown_reconnect', data => {
+  if (data.action === 'finish') {
+    clearInterval(countdownFunction);
+    document.getElementById('timer').innerHTML = 'Race Completed!';
+  } else if (data.action === 'start') {
+    timer(data.endTime);
+  } else if (data.action === 'endSession') {
+    document.getElementById('timer').innerHTML = '00:00:00';
+  }
+});
 
 const fullscreenButton = document.getElementById('fullScreenButton');
 

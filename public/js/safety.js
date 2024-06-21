@@ -175,16 +175,6 @@ socket.on('upcoming_session', data => {
     hideElements(sessionInfo);
     showElements(noRaces);
     start.disabled = true;
-  } else if (endSessionStatus && upcomingSessionData.sessionId !== 0) {
-    showElements(sessionInfo);
-    hideElements(noRaces);
-    sessionId = upcomingSessionData.sessionId;
-    sessionIdEl.textContent = sessionId;
-    for (let i = 1; i < 9; i++) {
-      const name = document.getElementById(`car${i}`);
-      name.textContent = upcomingSessionData.driverNameList[i - 1];
-    }
-    start.disabled = false;
   } else if (
     upcomingSessionData.endTime - now > 0 &&
     upcomingSessionData.sessionId !== 0
@@ -198,7 +188,32 @@ socket.on('upcoming_session', data => {
       const name = document.getElementById(`car${i}`);
       name.textContent = upcomingSessionData.driverNameList[i - 1];
     }
+    activateModeButtons();
+    hideElements(start);
+    showElements(modeButtons);
+    endSessionStatus = false;
     start.disabled = true;
+  } else if (endSessionStatus && upcomingSessionData.sessionId !== 0) {
+    showElements(sessionInfo);
+    hideElements(noRaces);
+    sessionId = upcomingSessionData.sessionId;
+    sessionIdEl.textContent = sessionId;
+    for (let i = 1; i < 9; i++) {
+      const name = document.getElementById(`car${i}`);
+      name.textContent = upcomingSessionData.driverNameList[i - 1];
+    }
+    start.disabled = false;
+  }
+});
+
+socket.on('race_mode_reconnect', mode => {
+  socket.emit('race_mode', mode);
+  setCurrentModeOnDisplay(mode);
+
+  if (mode === 'finish') {
+    document.getElementById('timer').innerHTML = 'Race Completed!';
+    showElements(end);
+    hideElements(start);
   }
 });
 

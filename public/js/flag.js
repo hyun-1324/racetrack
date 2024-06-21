@@ -54,3 +54,5 @@ document.addEventListener('fullscreenchange', () => {
     fullscreenButton.textContent = 'Full Screen';
   }
 });
+
+socket.emit('reconnect', 'flag');

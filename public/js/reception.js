@@ -129,15 +129,6 @@ socket.on('reconnect_reception', data => {
   if (data.length === 0) {
     return;
   } else {
-    // const tableBody = document
-    //   .getElementById('sessionsTable')
-    //   .getElementsByTagName('tbody')[0];
-    // const rows = tableBody.getElementsByTagName('tr');
-    // for (let i = 0; i <= rows.length; i++) {
-    //   const row = rows[i];
-    //   tableBody.removeChild(row);
-    // }
-    console.log(data);
     for (let i = 0; i < data.length; i++) {
       const sessionInfo = data[i];
       const tableBody = document
@@ -152,7 +143,7 @@ socket.on('reconnect_reception', data => {
 
       const cellSessionId = newRow.insertCell(1);
       cellSessionId.textContent = sessionInfo.id;
-
+      sessionIdCounter = sessionInfo.id + 1;
       for (let i = 2; i <= 9; i++) {
         const cell = newRow.insertCell(i);
         const input = document.createElement('input');
@@ -161,11 +152,12 @@ socket.on('reconnect_reception', data => {
         input.maxLength = 15;
         input.value = sessionInfo.driverNameList[i - 2];
         cell.appendChild(input);
+        input.disabled = true;
       }
 
       const cellActions = newRow.insertCell(10);
       const editButton = document.createElement('button');
-      editButton.textContent = 'Save';
+      editButton.textContent = 'Edit';
       editButton.addEventListener('click', () => editDrivers(newRow));
       cellActions.appendChild(editButton);
     }
