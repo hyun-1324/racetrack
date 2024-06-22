@@ -35,7 +35,7 @@ function createLeaderBoard() {
     const session = document.getElementById('sessionNumber');
     const message = document.getElementById('noSessionMessage');
     socket.on('end_time', (timeData) => {
-        if (timeData.action === 'start') {
+        if (timeData.action === 'start' || leaderBoard.rows.length === 1) {
             session.textContent = timeData.sessionId;
             message.style.display = 'none';
             leaderBoard.style.display = 'table';
@@ -68,7 +68,7 @@ function updateLeaderboard() {
         const rowToUpdate = Array.from(leaderBoard.rows).find(row => row.cells[0].textContent === updatedLapTime.carNumber.toString());
         rowToUpdate.cells[2].textContent = updatedLapTime.currentLap;
         // Convert fastest lap time to mm:ss:ms or display '-' if no fastest lap time
-        if (updatedLapTime.fastestLap === 0) {
+        if (updatedLapTime.fastestLap === 0)  {
             rowToUpdate.cells[3].textContent = '-';
         } else {
             rowToUpdate.cells[3].textContent = msToTime(updatedLapTime.fastestLap);

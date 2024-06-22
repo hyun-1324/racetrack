@@ -14,6 +14,7 @@ let sessionId = 0;
 let sessionIdEl = document.getElementById('sessionId');
 let countdownFunction;
 let endTime;
+let timerDuration;
 let endSessionStatus = true;
 let upcomingSessionData = new sessionData(0, undefined, [
   '',
@@ -26,6 +27,10 @@ let upcomingSessionData = new sessionData(0, undefined, [
   '',
 ]);
 
+
+listenForEndTime();
+listenToNextSession();
+
 start.addEventListener('click', startRace);
 end.addEventListener('click', endSession);
 safe.addEventListener('click', () => setMode('safe'));
@@ -34,26 +39,51 @@ danger.addEventListener('click', () => setMode('danger'));
 finish.addEventListener('click', () => setMode('finish'));
 
 async function startRace() {
-  await timer();
+  timerDuration = await getTimerDuration();
+  endTime = new Date().getTime() + timerDuration * 1000;
+  await timer(endTime);
   socket.emit('end_time', new endTimeData(sessionId, 'start', endTime));
   setMode('safe');
-  activateModeButtons();
-  hideElements(start);
-  showElements(modeButtons);
-  endSessionStatus = false;
+  
+}
+
+function listenForEndTime() {
+  socket.on('end_time', data => {
+    if (data.action === 'start') {
+      activateModeButtons();
+      hideElements(start);
+      showElements(modeButtons);
+      endSessionStatus = false;
+    } else if (data.action === 'endSession') {
+      hideElements(end);
+      showElements(start);
+      endSessionStatus = true;
+      
+    } else if (data.action === 'finish') {
+      clearInterval(countdownFunction);
+      document.getElementById('timer').innerHTML = 'Race Completed!';
+      deactivateModeButtons();
+      hideElements(modeButtons);
+      showElements(end);
+    }
+  });
+}
+
+function listenToNextSession() {
+  socket.on('next_session', data => {
+    if (endSessionStatus){
+      for (let i = 1; i < 9; i++) {
+        const name = document.getElementById(`car${i}`);
+        name.textContent = data.driverNameList[i - 1];
+      }
+      sessionId = data.sessionId;
+    }
+  });
 }
 
 function endSession() {
-  setMode('danger');
-  hideElements(end);
-  showElements(start);
-  endSessionStatus = true;
   socket.emit('end_time', new endTimeData(sessionId, 'endSession', endTime));
-
-  for (let i = 1; i < 9; i++) {
-    const name = document.getElementById(`car${i}`);
-    name.textContent = upcomingSessionData.driverNameList[i - 1];
-  }
+  setMode('danger');
 }
 
 function setMode(mode) {
@@ -63,11 +93,7 @@ function setMode(mode) {
   if (mode === 'finish') {
     endTime = new Date().getTime();
     socket.emit('end_time', new endTimeData(sessionId, 'finish', endTime));
-    clearInterval(countdownFunction);
-    document.getElementById('timer').innerHTML = 'Race Completed!';
-    deactivateModeButtons();
-    hideElements(modeButtons);
-    showElements(end);
+    
   }
 }
 
@@ -125,11 +151,8 @@ async function getTimerDuration() {
   }
 }
 
-async function timer() {
-  const timerDuration = await getTimerDuration();
-
-  // Set the date and time we're counting down to
-  endTime = new Date().getTime() + timerDuration * 1000; // set end time from now
+async function timer(endTime) {
+  timerDuration = await getTimerDuration();
 
   // Update the count down every 1 second
   countdownFunction = setInterval(function () {
@@ -169,12 +192,31 @@ async function timer() {
 }
 
 socket.on('upcoming_session', data => {
+  let now = new Date().getTime();
   upcomingSessionData = data;
   if (endSessionStatus && upcomingSessionData.sessionId === 0) {
     hideElements(sessionInfo);
     showElements(noRaces);
     start.disabled = true;
-  } else if (endSessionStatus && !(upcomingSessionData.sessionId === 0)) {
+  } else if (
+    upcomingSessionData.endTime - now > 0 &&
+    upcomingSessionData.sessionId !== 0
+  ) {
+    showElements(sessionInfo);
+    hideElements(noRaces);
+    sessionId = upcomingSessionData.sessionId;
+    sessionIdEl.textContent = sessionId;
+    timer(upcomingSessionData.endTime);
+    for (let i = 1; i < 9; i++) {
+      const name = document.getElementById(`car${i}`);
+      name.textContent = upcomingSessionData.driverNameList[i - 1];
+    }
+    activateModeButtons();
+    hideElements(start);
+    showElements(modeButtons);
+    endSessionStatus = false;
+    start.disabled = true;
+  } else if (endSessionStatus && upcomingSessionData.sessionId !== 0) {
     showElements(sessionInfo);
     hideElements(noRaces);
     sessionId = upcomingSessionData.sessionId;
@@ -186,3 +228,15 @@ socket.on('upcoming_session', data => {
     start.disabled = false;
   }
 });
+
+socket.on('race_mode', mode => {
+  //socket.emit('race_mode', mode);
+  setCurrentModeOnDisplay(mode);
+
+  if (mode === 'finish') {
+    document.getElementById('timer').innerHTML = 'Race Completed!';
+    showElements(end);
+    hideElements(start);
+  }
+});
+

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { checkAccessKeysExist, checkAccess } from './accessKey.js';
 import { initializeDb } from './database/initializeDb.js';
-import { endTimeData, sessionData } from './public/classes.js';
+import { sessionData, endTimeData, lapTimeUpdate } from './public/classes.js';
 import { updateLapTime } from './lapTimes.js';
 
 // Check that access keys are set
@@ -72,10 +72,38 @@ initializeDb()
     });
 
     // Attach socket.io to the HTTP server
-    // Example of how to recieve and send data via the socket below (feel free to delete/modify)
     const io = new Server(server);
-    io.on('connection', socket => {
-      socket.on('race_mode', raceMode => {
+    io.on('connection', async (socket) => {
+      // Emit all data needed by (re)connecting client
+      try {
+        const fetchDataForPreparation = await fetchreconnectDataforReception(db);
+        socket.emit('reconnect_reception', fetchDataForPreparation);
+    
+        const upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(db);
+        socket.emit('upcoming_session', upcomingSessionInfo);
+
+        const nextSessionInfo = await fetchNextSessionDataFromUpdate(db);
+        socket.emit('next_session', nextSessionInfo);
+    
+        const raceMode = await fetchRaceMode(db);
+        socket.emit('race_mode', raceMode);
+    
+        const endTime = await fetchEndTimeDataFromDb(db);
+        socket.emit('end_time', endTime);
+    
+        const lapTimeDatas = await fetchLapTimeDataFromDb(db, upcomingSessionInfo);
+        if (lapTimeDatas.length > 0) {
+          for (const lapTimeData of lapTimeDatas) {
+            socket.emit('update_lap_time', lapTimeData);
+          }
+        }
+      } catch (error) {
+        console.error('Error handling connection:', error);
+      }
+          
+      // Listen for events from the clients
+      socket.on('race_mode', async raceMode => {
+        await saveRaceMode(db, raceMode);
         // When we receive 'racemode' event from a client, emit it to all clients
         io.emit('race_mode', raceMode);
       });
@@ -128,6 +156,29 @@ initializeDb()
     console.error('Error initializing database:', error.message);
     process.exit(1);
   });
+
+async function fetchLapTimeDataFromDb(db, upcomingSessionInfo) {
+  try {
+    const lapTimeDatas = [];
+    const lapTimeData = await db.all(
+        'SELECT session_id, car_num, lap_num, fastest_lap FROM lap_times WHERE session_id = ?',
+        [upcomingSessionInfo.sessionId]
+      );
+
+    if (!lapTimeData) {
+      return lapTimeDatas;
+    }
+   
+    for (const row of lapTimeData) {
+      let laptime = new lapTimeUpdate(row.session_id, row.car_num, row.lap_num, row.fastest_lap);
+      lapTimeDatas.push(laptime);
+    }
+    return lapTimeDatas;
+  } catch (err) {
+    console.error(err.message);
+    throw err;
+  }
+}
 
 async function updateSessionInfo(db, updatedSession) {
   try {
@@ -227,6 +278,15 @@ async function fetchUpcomingSessionDataFromUpdate(db) {
       }
     }
     upcomingSessionData.sessionId = row.upcomingSessionId;
+
+    let sessionInfo = await db.get(
+      'SELECT end_time AS endTime FROM sessions WHERE id = ?',
+      [upcomingSessionData.sessionId]
+    );
+    if (sessionInfo.endTime) {
+      upcomingSessionData.endTime = sessionInfo.endTime;
+    }
+
     const driverInfo = await db.all(
       'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
       [row.upcomingSessionId]
@@ -261,5 +321,87 @@ async function fetchNextSessionDataFromUpdate(db) {
   } catch (err) {
     console.error(err.message);
     throw err;
+  }
+}
+
+async function fetchreconnectDataforReception(db) {
+  try {
+    const sessionArr = [];
+    const sessionIdsInPreparing = await db.all(
+      "SELECT id FROM sessions WHERE status = 'prepare' ORDER BY id ASC"
+    );
+
+    if (sessionIdsInPreparing.length === 0) {
+      return sessionArr;
+    }
+
+    for (const session of sessionIdsInPreparing) {
+      const sessionDataInPreparing = new sessionData();
+      sessionDataInPreparing.status = 'prepare';
+      sessionDataInPreparing.id = session.id;
+
+      const driverInfo = await db.all(
+        'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
+        [session.id]
+      );
+      sessionDataInPreparing.driverNameList = driverInfo.map(
+        r => r.driver_name
+      );
+      sessionArr.push(sessionDataInPreparing);
+    }
+
+    return sessionArr;
+  } catch (err) {
+    console.error(err.message);
+    throw err;
+  }
+}
+
+async function saveRaceMode(db, raceMode) {
+  try {
+    const sql = `UPDATE race_mode SET mode = ? WHERE id = 1`;
+    await db.run(sql, [raceMode]);
+  } catch (err) {
+    console.error(err.message);
+    throw err;
+  }
+}
+
+async function fetchRaceMode(db) {
+  const result = await db.get(
+    'SELECT mode AS raceMode FROM race_mode WHERE id = 1'
+  );
+  return result.raceMode;
+}
+
+async function fetchEndTimeDataFromDb(db) {
+  const endTime = new endTimeData();
+  let result = await db.get(
+    "SELECT id, end_time FROM sessions WHERE status = 'start'"
+  );
+
+  if (result && result.end_time) {
+    endTime.action = 'start';
+    endTime.endTime = result.end_time;
+    endTime.sessionId = result.id;
+    return endTime;
+  } else {
+    result = await db.get(
+      "SELECT id, end_time FROM sessions WHERE status = 'finish'"
+    );
+
+    if (result && result.end_time) {
+      endTime.action = 'finish';
+      endTime.sessionId = result.id;
+      return endTime;
+    } else {
+      result = await db.get(
+        "SELECT MAX(id) AS id, end_time FROM sessions WHERE status = 'endSession'"
+      );
+
+      endTime.action = 'endSession';
+      endTime.sessionId = result.id;
+      return endTime;
+    }
   }
 }
