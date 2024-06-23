@@ -125,15 +125,22 @@ socket.on('end_time', data => {
 
 socket.emit('reconnect', 'reception');
 
-socket.on('reconnect_reception', data => {
+socket.on('reconnect_reception', (data, lastId) => {
+  console.log(lastId);
+  sessionIdCounter = lastId + 1;
   if (data.length === 0) {
     return;
   } else {
+    const tableBody = document
+      .getElementById('sessionsTable')
+      .getElementsByTagName('tbody')[0];
+    const rows = tableBody.querySelectorAll('tr');
+    // Delete existing rows
+    rows.forEach(row => row.remove());
+
+    // Add new rows
     for (let i = 0; i < data.length; i++) {
       const sessionInfo = data[i];
-      const tableBody = document
-        .getElementById('sessionsTable')
-        .getElementsByTagName('tbody')[0];
       const newRow = tableBody.insertRow();
 
       const cellSelect = newRow.insertCell(0);

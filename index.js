@@ -115,21 +115,22 @@ initializeDb()
           const fetchDataForPreparation = await fetchreconnectDataforReception(
             db
           );
-          io.emit('reconnect_reception', fetchDataForPreparation);
+          const lastId = await fetchLastId(db);
+          socket.emit('reconnect_reception', fetchDataForPreparation, lastId);
         } else if (request === 'safety') {
           const upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(
             db
           );
           const raceMode = await fetchRaceMode(db);
-          io.emit('race_mode_reconnect', raceMode);
-          io.emit('upcoming_session', upcomingSessionInfo);
+          socket.emit('race_mode_reconnect', raceMode);
+          socket.emit('upcoming_session', upcomingSessionInfo);
         } else if (request === 'nextRace') {
         } else if (request === 'flag') {
           const raceMode = await fetchRaceMode(db);
-          io.emit('race_mode', raceMode);
+          socket.emit('race_mode', raceMode);
         } else if (request === 'countdown') {
           const endTime = await fetchEndTimeDataFromDb(db);
-          io.emit('countdown_reconnect', endTime);
+          socket.emit('countdown_reconnect', endTime);
         }
       });
     });
@@ -322,6 +323,18 @@ async function fetchreconnectDataforReception(db) {
     console.error(err.message);
     throw err;
   }
+}
+
+async function fetchLastId(db) {
+  let lastId;
+  const result = await db.get('SELECT MAX(id) AS id FROM sessions');
+
+  if (!result || !result.id) {
+    lastId = 0;
+    return lastId;
+  }
+
+  return result.id;
 }
 
 async function saveRaceMode(db, raceMode) {
