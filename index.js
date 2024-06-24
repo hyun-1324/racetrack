@@ -133,7 +133,7 @@ initializeDb()
           socket.emit('race_mode', raceMode);
         } else if (request === 'countdown') {
           const endTime = await fetchEndTimeDataFromDb(db);
-          socket.emit('countdown_reconnect', endTime);
+          socket.emit('end_time', endTime);
         }
       });
     });

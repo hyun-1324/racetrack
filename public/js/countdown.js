@@ -52,17 +52,6 @@ async function timer(endTime) {
 
 socket.emit('reconnect', 'countdown');
 
-socket.on('countdown_reconnect', data => {
-  if (data.action === 'finish') {
-    clearInterval(countdownFunction);
-    document.getElementById('timer').innerHTML = 'Race Completed!';
-  } else if (data.action === 'start') {
-    timer(data.endTime);
-  } else if (data.action === 'endSession') {
-    document.getElementById('timer').innerHTML = '00:00:00';
-  }
-});
-
 const fullscreenButton = document.getElementById('fullScreenButton');
 
 fullscreenButton.addEventListener('click', () => {

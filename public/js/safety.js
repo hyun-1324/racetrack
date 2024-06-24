@@ -193,6 +193,26 @@ socket.on('upcoming_session', data => {
     showElements(modeButtons);
     endSessionStatus = false;
     start.disabled = true;
+  } else if (
+    upcomingSessionData.endTime - now < 0 &&
+    upcomingSessionData.sessionId !== 0 &&
+    upcomingSessionData.status === 'start'
+  ) {
+    sessionId = upcomingSessionData.sessionId;
+    sessionIdEl.textContent = sessionId;
+    document.getElementById('timer').innerHTML = 'Race Completed!';
+    showElements(sessionInfo);
+    showElements(end);
+    hideElements(modeButtons);
+    hideElements(noRaces);
+    hideElements(start);
+    endSessionStatus = false;
+    start.disabled = true;
+
+    for (let i = 1; i < 9; i++) {
+      const name = document.getElementById(`car${i}`);
+      name.textContent = upcomingSessionData.driverNameList[i - 1];
+    }
   } else if (endSessionStatus && upcomingSessionData.sessionId !== 0) {
     showElements(sessionInfo);
     hideElements(noRaces);
