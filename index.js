@@ -76,14 +76,6 @@ initializeDb()
     io.on('connection', async (socket) => {
       // Emit all data needed by (re)connecting client
       try {
-
-          /*const upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(
-            db
-          );
-          const raceMode = await fetchRaceMode(db);
-          socket.emit('reconnect_race_mode', raceMode);
-          socket.emit('upcoming_session', upcomingSessionInfo);*/
-
         const fetchDataForPreparation = await fetchreconnectDataforReception(db);
         socket.emit('reconnect_reception', fetchDataForPreparation);
   
@@ -96,7 +88,12 @@ initializeDb()
 
         const upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(db);
         socket.emit('upcoming_session', upcomingSessionInfo);
-    
+        
+        const leaderboardInfo = await fetchLeaderboardDataFromDb(db, upcomingSessionInfo);
+        if (upcomingSessionInfo.status === 'prepare' || upcomingSessionInfo.status === 'endSession') {
+          socket.emit('reconnect_leaderboard', leaderboardInfo);
+        }
+        
         const endTime = await fetchEndTimeDataFromDb(db);
         socket.emit('end_time', endTime);
     
@@ -166,7 +163,31 @@ initializeDb()
     process.exit(1);
   });
 
-async function fetchLapTimeDataFromDb(db, upcomingSessionInfo) {
+async function fetchLeaderboardDataFromDb(db, upcomingSessionData) {
+  // If race has eneded and new race has not yet started, fetch latest race's information
+  if (upcomingSessionData.status === 'prepare' || upcomingSessionData.status === 'endSession') {
+    try {
+      const latestSession = await db.get(
+        'SELECT MAX(id) AS id FROM sessions WHERE status = "endSession"'
+      );
+      if (!latestSession || !latestSession.id) {
+        return new sessionData(0);
+      }
+      const driverInfo = await db.all(
+        'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
+        [latestSession.id]
+      );
+      return new sessionData(latestSession.id, 'endSession', driverInfo.map(r => r.driver_name));
+    } catch (err) {
+      console.error(err.message);
+      throw err;
+    }
+  }
+}
+
+  
+
+  async function fetchLapTimeDataFromDb(db, upcomingSessionInfo) {
   try {
     const lapTimeDatas = [];
     const lapTimeData = await db.all(
@@ -267,12 +288,12 @@ async function fetchUpcomingSessionDataFromUpdate(db) {
   try {
     const upcomingSessionData = new sessionData();
     let row = await db.get(
-      "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status = 'start'"
+      "SELECT id AS upcomingSessionId FROM sessions WHERE status = 'start'"
     );
     upcomingSessionData.status = 'start';
     if (!row || !row.upcomingSessionId) {
       row = await db.get(
-        "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status = 'finish'"
+        "SELECT id AS upcomingSessionId FROM sessions WHERE status = 'finish'"
       );
       upcomingSessionData.status = 'finish';
       if (!row || !row.upcomingSessionId) {
@@ -291,6 +312,7 @@ async function fetchUpcomingSessionDataFromUpdate(db) {
       }
     }
     upcomingSessionData.sessionId = row.upcomingSessionId;
+    console.log('upcomingSessionId:', upcomingSessionData.sessionId);
 
     let sessionInfo = await db.get(
       'SELECT end_time AS endTime FROM sessions WHERE id = ?',
