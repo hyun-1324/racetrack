@@ -76,17 +76,26 @@ initializeDb()
     io.on('connection', async (socket) => {
       // Emit all data needed by (re)connecting client
       try {
+
+          /*const upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(
+            db
+          );
+          const raceMode = await fetchRaceMode(db);
+          socket.emit('reconnect_race_mode', raceMode);
+          socket.emit('upcoming_session', upcomingSessionInfo);*/
+
         const fetchDataForPreparation = await fetchreconnectDataforReception(db);
         socket.emit('reconnect_reception', fetchDataForPreparation);
-    
-        const upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(db);
-        socket.emit('upcoming_session', upcomingSessionInfo);
-
+  
         const nextSessionInfo = await fetchNextSessionDataFromUpdate(db);
         socket.emit('next_session', nextSessionInfo);
     
         const raceMode = await fetchRaceMode(db);
         socket.emit('race_mode', raceMode);
+        socket.emit('reconnect_race_mode', raceMode);
+
+        const upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(db);
+        socket.emit('upcoming_session', upcomingSessionInfo);
     
         const endTime = await fetchEndTimeDataFromDb(db);
         socket.emit('end_time', endTime);
@@ -258,20 +267,24 @@ async function fetchUpcomingSessionDataFromUpdate(db) {
   try {
     const upcomingSessionData = new sessionData();
     let row = await db.get(
-      "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status IN ('start', 'finish')"
+      "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status = 'start'"
     );
-    upcomingSessionData.status = 'finish';
+    upcomingSessionData.status = 'start';
     if (!row || !row.upcomingSessionId) {
       row = await db.get(
-        "SELECT MAX(id) AS upcomingSessionId FROM sessions WHERE status = 'endSession'"
+        "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status = 'finish'"
       );
-      upcomingSessionData.status = 'endSession';
+      upcomingSessionData.status = 'finish';
       if (!row || !row.upcomingSessionId) {
         row = await db.get(
           "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status = 'prepare'"
         );
         upcomingSessionData.status = 'prepare';
         if (!row || !row.upcomingSessionId) {
+          row = await db.get(
+            "SELECT MAX(id) AS upcomingSessionId FROM sessions WHERE status = 'endSession'"
+          );
+          upcomingSessionData.status = 'endSession';
           upcomingSessionData.sessionId = 0;
           return upcomingSessionData;
         }
@@ -379,7 +392,6 @@ async function fetchEndTimeDataFromDb(db) {
   let result = await db.get(
     "SELECT id, end_time FROM sessions WHERE status = 'start'"
   );
-
   if (result && result.end_time) {
     endTime.action = 'start';
     endTime.endTime = result.end_time;
@@ -389,7 +401,6 @@ async function fetchEndTimeDataFromDb(db) {
     result = await db.get(
       "SELECT id, end_time FROM sessions WHERE status = 'finish'"
     );
-
     if (result && result.end_time) {
       endTime.action = 'finish';
       endTime.sessionId = result.id;

@@ -27,10 +27,6 @@ let upcomingSessionData = new sessionData(0, undefined, [
   '',
 ]);
 
-
-listenForEndTime();
-listenToNextSession();
-
 start.addEventListener('click', startRace);
 end.addEventListener('click', endSession);
 safe.addEventListener('click', () => setMode('safe'));
@@ -44,46 +40,23 @@ async function startRace() {
   await timer(endTime);
   socket.emit('end_time', new endTimeData(sessionId, 'start', endTime));
   setMode('safe');
-  
-}
-
-function listenForEndTime() {
-  socket.on('end_time', data => {
-    if (data.action === 'start') {
-      activateModeButtons();
-      hideElements(start);
-      showElements(modeButtons);
-      endSessionStatus = false;
-    } else if (data.action === 'endSession') {
-      hideElements(end);
-      showElements(start);
-      endSessionStatus = true;
-      
-    } else if (data.action === 'finish') {
-      clearInterval(countdownFunction);
-      document.getElementById('timer').innerHTML = 'Race Completed!';
-      deactivateModeButtons();
-      hideElements(modeButtons);
-      showElements(end);
-    }
-  });
-}
-
-function listenToNextSession() {
-  socket.on('next_session', data => {
-    if (endSessionStatus){
-      for (let i = 1; i < 9; i++) {
-        const name = document.getElementById(`car${i}`);
-        name.textContent = data.driverNameList[i - 1];
-      }
-      sessionId = data.sessionId;
-    }
-  });
+  activateModeButtons();
+  hideElements(start);
+  showElements(modeButtons);
+  endSessionStatus = false;
 }
 
 function endSession() {
-  socket.emit('end_time', new endTimeData(sessionId, 'endSession', endTime));
   setMode('danger');
+  hideElements(end);
+  showElements(start);
+  endSessionStatus = true;
+  socket.emit('end_time', new endTimeData(sessionId, 'endSession', endTime));
+
+  for (let i = 1; i < 9; i++) {
+    const name = document.getElementById(`car${i}`);
+    name.textContent = upcomingSessionData.driverNameList[i - 1];
+  }
 }
 
 function setMode(mode) {
@@ -93,7 +66,11 @@ function setMode(mode) {
   if (mode === 'finish') {
     endTime = new Date().getTime();
     socket.emit('end_time', new endTimeData(sessionId, 'finish', endTime));
-    
+    clearInterval(countdownFunction);
+    document.getElementById('timer').innerHTML = 'Race Completed!';
+    deactivateModeButtons();
+    hideElements(modeButtons);
+    showElements(end);
   }
 }
 
@@ -229,8 +206,7 @@ socket.on('upcoming_session', data => {
   }
 });
 
-socket.on('race_mode', mode => {
-  //socket.emit('race_mode', mode);
+socket.on('reconnect_race_mode', mode => {
   setCurrentModeOnDisplay(mode);
 
   if (mode === 'finish') {
