@@ -38,7 +38,10 @@ function createLeaderBoard() {
     const session = document.getElementById('sessionNumber');
     const message = document.getElementById('noSessionMessage');
     socket.on('end_time', (timeData) => {
-        if (timeData.action === 'start' || leaderBoard.rows.length === 1 && currentRaceData.id !== 0) {
+        console.log('endTimedata:', timeData);
+        console.log('currentRaceData:', currentRaceData);
+        if (currentRaceData.sessionId === 0) return;
+        if (timeData.action === 'start' || leaderBoard.rows.length === 1) {
             session.textContent = currentRaceData.sessionId;
             message.style.display = 'none';
             leaderBoard.style.display = 'table';
@@ -67,6 +70,7 @@ function createLeaderBoard() {
 function updateLeaderboard() {
     const leaderBoard = document.getElementById('leaderBoard');
     socket.on('update_lap_time', (updatedLapTime) => {
+        console.log('updatedLapTime:', updatedLapTime);
         // find a row that has the matching car number in column 0
         const rowToUpdate = Array.from(leaderBoard.rows).find(row => row.cells[0].textContent === updatedLapTime.carNumber.toString());
         rowToUpdate.cells[2].textContent = updatedLapTime.currentLap;
