@@ -301,47 +301,47 @@ async function fetchNextSessionDataFromUpdate(db) {
 
 async function fetchNextRaceData(db) {
   const nextSessionData = new sessionData();
-  let result = await db.get("SELECT id FROM sessions WHERE status = 'start'");
+  let result = await db.get(
+    "SELECT id FROM sessions WHERE status IN ('start', 'finish')"
+  );
 
   if (result && result.id) {
-    nextSessionData.status = 'start';
-    nextSessionData.sessionId = result.id;
+    result = await db.get(
+      "SELECT MIN(id) AS id FROM sessions WHERE status = 'prepare'"
+    );
 
-    result = await db.get("SELECT id FROM sessions WHERE status = 'start'");
-  } else {
-    result = await db.get("SELECT id FROM sessions WHERE status = 'finish'");
     if (result && result.id) {
-      nextSessionData.status = 'finish';
       nextSessionData.sessionId = result.id;
+      nextSessionData.status = 'start';
+    } else {
+      nextSessionData.sessionId = 0;
+    }
+  } else {
+    result = await db.get(
+      "SELECT MAX(id) AS id FROM sessions WHERE status = 'endSession'"
+    );
+    if (result && result.id) {
+      result = await db.get(
+        "SELECT MIN(id) AS id FROM sessions WHERE status = 'prepare'"
+      );
+
+      if (result && result.id) {
+        nextSessionData.sessionId = result.id;
+        nextSessionData.status = 'prepare';
+      } else {
+        nextSessionData.sessionId = 0;
+      }
     } else {
       result = await db.get(
-        "SELECT MIN(id) as id FROM sessions WHERE status = 'prepare'"
+        "SELECT MIN(id) AS id FROM sessions WHERE status = 'prepare'"
       );
       if (result && result.id) {
         nextSessionData.status = 'prepare';
         nextSessionData.sessionId = result.id;
       } else {
-        nextSessionData.status = 'endSession';
         nextSessionData.sessionId = 0;
       }
     }
-  }
-
-  if (
-    nextSessionData.status === 'start' ||
-    nextSessionData.status === 'finish'
-  ) {
-    const nextResult = await db.get(
-      'SELECT MIN(id) as id FROM sessions WHERE id > ?',
-      [nextSessionData.sessionId]
-    );
-    if (nextResult && nextResult.id) {
-      nextSessionData.sessionId = nextResult.id;
-    } else {
-      nextSessionData.sessionId = null;
-    }
-  } else {
-    nextSessionData.sessionId = null;
   }
 
   const driverInfo = await db.all(

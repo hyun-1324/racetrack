@@ -18,6 +18,7 @@ let nextSessionData = new sessionData(0, undefined, [
 ]);
 
 socket.on('next_session', data => {
+  console.log(data);
   nextSessionData = data;
   if (nextSessionData.sessionId === 0) {
     sessionInfo.style.display = 'none';
@@ -27,7 +28,7 @@ socket.on('next_session', data => {
     nextSessionData.status === 'endSession'
   ) {
     sessionInfo.style.display = 'block';
-    proceedMessage.style.display = 'none';
+    proceedMessage.style.display = 'block';
     noRaces.style.display = 'none';
     sessionId.textContent = nextSessionData.sessionId;
     addDriversInfo(nextSessionData.driverNameList);
