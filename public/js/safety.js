@@ -206,7 +206,7 @@ socket.on('upcoming_session', data => {
   }
 });
 
-socket.on('race_mode_reconnect', mode => {
+socket.on('reconnect_race_mode', mode => {
   socket.emit('race_mode', mode);
   setCurrentModeOnDisplay(mode);
 

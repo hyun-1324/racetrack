@@ -27,7 +27,7 @@ socket.on('next_session', data => {
     nextSessionData.status === 'endSession'
   ) {
     sessionInfo.style.display = 'block';
-    proceedMessage.style.display = 'block';
+    proceedMessage.style.display = 'none';
     noRaces.style.display = 'none';
     sessionId.textContent = nextSessionData.sessionId;
     addDriversInfo(nextSessionData.driverNameList);
@@ -102,3 +102,5 @@ document.addEventListener('fullscreenchange', () => {
     fullscreenButton.textContent = 'Full Screen';
   }
 });
+
+socket.emit('reconnect', 'nextRace');

@@ -122,9 +122,12 @@ initializeDb()
             db
           );
           const raceMode = await fetchRaceMode(db);
-          socket.emit('race_mode_reconnect', raceMode);
+          socket.emit('reconnect_race_mode', raceMode);
           socket.emit('upcoming_session', upcomingSessionInfo);
         } else if (request === 'nextRace') {
+          const nextSessionData = await fetchNextRaceData(db);
+
+          io.emit('next_session', nextSessionData);
         } else if (request === 'flag') {
           const raceMode = await fetchRaceMode(db);
           socket.emit('race_mode', raceMode);
@@ -226,20 +229,24 @@ async function fetchUpcomingSessionDataFromUpdate(db) {
   try {
     const upcomingSessionData = new sessionData();
     let row = await db.get(
-      "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status IN ('start', 'finish')"
+      "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status = 'start'"
     );
-    upcomingSessionData.status = 'finish';
+    upcomingSessionData.status = 'start';
     if (!row || !row.upcomingSessionId) {
       row = await db.get(
-        "SELECT MAX(id) AS upcomingSessionId FROM sessions WHERE status = 'endSession'"
+        "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status = 'finish'"
       );
-      upcomingSessionData.status = 'endSession';
+      upcomingSessionData.status = 'finish';
       if (!row || !row.upcomingSessionId) {
         row = await db.get(
           "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status = 'prepare'"
         );
         upcomingSessionData.status = 'prepare';
         if (!row || !row.upcomingSessionId) {
+          row = await db.get(
+            "SELECT MAX(id) AS upcomingSessionId FROM sessions WHERE status = 'endSession'"
+          );
+          upcomingSessionData.status = 'endSession';
           upcomingSessionData.sessionId = 0;
           return upcomingSessionData;
         }
@@ -290,6 +297,60 @@ async function fetchNextSessionDataFromUpdate(db) {
     console.error(err.message);
     throw err;
   }
+}
+
+async function fetchNextRaceData(db) {
+  const nextSessionData = new sessionData();
+  let result = await db.get("SELECT id FROM sessions WHERE status = 'start'");
+
+  if (result && result.id) {
+    nextSessionData.status = 'start';
+    nextSessionData.sessionId = result.id;
+
+    result = await db.get("SELECT id FROM sessions WHERE status = 'start'");
+  } else {
+    result = await db.get("SELECT id FROM sessions WHERE status = 'finish'");
+    if (result && result.id) {
+      nextSessionData.status = 'finish';
+      nextSessionData.sessionId = result.id;
+    } else {
+      result = await db.get(
+        "SELECT MIN(id) as id FROM sessions WHERE status = 'prepare'"
+      );
+      if (result && result.id) {
+        nextSessionData.status = 'prepare';
+        nextSessionData.sessionId = result.id;
+      } else {
+        nextSessionData.status = 'endSession';
+        nextSessionData.sessionId = 0;
+      }
+    }
+  }
+
+  if (
+    nextSessionData.status === 'start' ||
+    nextSessionData.status === 'finish'
+  ) {
+    const nextResult = await db.get(
+      'SELECT MIN(id) as id FROM sessions WHERE id > ?',
+      [nextSessionData.sessionId]
+    );
+    if (nextResult && nextResult.id) {
+      nextSessionData.sessionId = nextResult.id;
+    } else {
+      nextSessionData.sessionId = null;
+    }
+  } else {
+    nextSessionData.sessionId = null;
+  }
+
+  const driverInfo = await db.all(
+    'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
+    [nextSessionData.sessionId]
+  );
+  nextSessionData.driverNameList = driverInfo.map(r => r.driver_name);
+
+  return nextSessionData;
 }
 
 async function fetchreconnectDataforReception(db) {
