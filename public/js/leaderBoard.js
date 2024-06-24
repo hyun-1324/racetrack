@@ -1,8 +1,11 @@
 import {showTimer, fullscreenButton} from './countdown.js';
 
-let nextRaceData
+let currentRaceData
 socket.on('upcoming_session', (data) => {
-    nextRaceData = data;
+    currentRaceData = data;
+});
+socket.on('reconnect_leaderboard', (data) => {
+    currentRaceData = data;
 });
 
 showTimer();
@@ -35,8 +38,8 @@ function createLeaderBoard() {
     const session = document.getElementById('sessionNumber');
     const message = document.getElementById('noSessionMessage');
     socket.on('end_time', (timeData) => {
-        if (timeData.action === 'start') {
-            session.textContent = timeData.sessionId;
+        if (timeData.action === 'start' || leaderBoard.rows.length === 1 && currentRaceData.id !== 0) {
+            session.textContent = currentRaceData.sessionId;
             message.style.display = 'none';
             leaderBoard.style.display = 'table';
             // Clear table rows from previous session
@@ -45,14 +48,14 @@ function createLeaderBoard() {
             }
             // Create new table rows for each car in current session
             for (let i = 1; i < 9; i++) {
-                if (nextRaceData.driverNameList[i - 1] !== '') {
+                if (currentRaceData.driverNameList[i - 1] !== '') {
                     const row = leaderBoard.insertRow();
                     const car = row.insertCell(0);
                     const driver = row.insertCell(1);
                     const lap = row.insertCell(2);
                     const time = row.insertCell(3);
                     car.textContent = i;
-                    driver.textContent = nextRaceData.driverNameList[i - 1];
+                    driver.textContent = currentRaceData.driverNameList[i - 1];
                     lap.textContent = 0;
                     time.textContent = '-';
                 }
@@ -68,7 +71,7 @@ function updateLeaderboard() {
         const rowToUpdate = Array.from(leaderBoard.rows).find(row => row.cells[0].textContent === updatedLapTime.carNumber.toString());
         rowToUpdate.cells[2].textContent = updatedLapTime.currentLap;
         // Convert fastest lap time to mm:ss:ms or display '-' if no fastest lap time
-        if (updatedLapTime.fastestLap === 0) {
+        if (updatedLapTime.fastestLap === 0)  {
             rowToUpdate.cells[3].textContent = '-';
         } else {
             rowToUpdate.cells[3].textContent = msToTime(updatedLapTime.fastestLap);

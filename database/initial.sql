@@ -4,6 +4,10 @@ CREATE TABLE "sessions" (
   "end_time" DATETIME
 );
 
+CREATE TABLE "race_mode" (
+  "id" INTEGER PRIMARY KEY,
+  "mode" TEXT
+);
 
 CREATE TABLE "driver_car_assignments" (
   "id" INTEGER PRIMARY KEY,
@@ -23,3 +27,5 @@ CREATE TABLE "lap_times" (
   FOREIGN KEY("session_id") REFERENCES "sessions"("id")
 );
 
+
+INSERT INTO race_mode (id, mode) VALUES (1, 'danger');
