@@ -7,7 +7,7 @@ document
 
 let sessionIdCounter = 1;
 
-async function addSession() {
+function addSession() {
   const tableBody = document
     .getElementById('sessionsTable')
     .getElementsByTagName('tbody')[0];
@@ -38,7 +38,7 @@ async function addSession() {
   cellActions.appendChild(editButton);
 }
 
-async function editDrivers(row) {
+function editDrivers(row) {
   // We need to add code later to check if the session has already started.
 
   const inputs = row.getElementsByTagName('input');
@@ -49,7 +49,7 @@ async function editDrivers(row) {
     driverNameList.push(input.value);
   }
 
-  if (await hasDuplicates(driverNameList)) {
+  if (hasDuplicates(driverNameList)) {
     alert('Driver names are duplicated.');
     return;
   }
@@ -77,7 +77,7 @@ async function editDrivers(row) {
   }
 }
 
-async function hasDuplicates(array) {
+function hasDuplicates(array) {
   let uniqueNameArray = [];
   for (let i = 0; i < 8; i++) {
     if (!(array[i] === '')) {
@@ -88,7 +88,7 @@ async function hasDuplicates(array) {
   return uniqueElements.size !== uniqueNameArray.length;
 }
 
-async function removeSessions() {
+function removeSessions() {
   const tableBody = document
     .getElementById('sessionsTable')
     .getElementsByTagName('tbody')[0];
@@ -123,7 +123,10 @@ socket.on('end_time', data => {
   }
 });
 
-socket.on('reconnect_reception', data => {
+socket.emit('reconnect', 'reception');
+
+socket.on('reconnect_reception', (data, lastId) => {
+  sessionIdCounter = lastId + 1;
   if (data.length === 0) {
     return;
   } else {

@@ -79,10 +79,11 @@ initializeDb()
         const fetchDataForPreparation = await fetchreconnectDataforReception(
           db
         );
-        socket.emit('reconnect_reception', fetchDataForPreparation);
+        const lastId = await fetchLastId(db);
+        socket.emit('reconnect_reception', fetchDataForPreparation, lastId);
 
-        const nextSessionInfo = await fetchNextSessionDataFromUpdate(db);
-        socket.emit('next_session', nextSessionInfo);
+        const nextSessionData = await fetchNextSessionData(db);
+        socket.emit('next_session', nextSessionData);
 
         const raceMode = await fetchRaceMode(db);
         socket.emit('race_mode', raceMode);
@@ -151,7 +152,7 @@ initializeDb()
         const upcomingSessionData = await fetchUpcomingSessionDataFromUpdate(
           db
         );
-        const nextSessionData = await fetchNextSessionDataFromUpdate(db);
+        const nextSessionData = await fetchNextSessionData(db);
         io.emit('upcoming_session', upcomingSessionData);
         io.emit('next_session', nextSessionData);
       });
@@ -355,29 +356,58 @@ async function fetchUpcomingSessionDataFromUpdate(db) {
   }
 }
 
-async function fetchNextSessionDataFromUpdate(db) {
-  try {
-    const nextSessionData = new sessionData();
-    const result = await db.get(
-      "SELECT MIN(id) AS nextSessionId FROM sessions WHERE status = 'prepare'"
-    );
-    if (!result || !result.nextSessionId) {
-      nextSessionData.sessionId = 0;
-      return nextSessionData;
-    }
-    nextSessionData.sessionId = result.nextSessionId;
-    const driverInfo = await db.all(
-      'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
-      [result.nextSessionId]
-    );
-    nextSessionData.driverNameList = driverInfo.map(r => r.driver_name);
+async function fetchNextSessionData(db) {
+  const nextSessionData = new sessionData();
+  let result = await db.get(
+    "SELECT id FROM sessions WHERE status IN ('start', 'finish')"
+  );
 
-    nextSessionData.status = 'prepare';
-    return nextSessionData;
-  } catch (err) {
-    console.error(err.message);
-    throw err;
+  if (result && result.id) {
+    result = await db.get(
+      "SELECT MIN(id) AS id FROM sessions WHERE status = 'prepare'"
+    );
+
+    if (result && result.id) {
+      nextSessionData.sessionId = result.id;
+      nextSessionData.status = 'start';
+    } else {
+      nextSessionData.sessionId = 0;
+    }
+  } else {
+    result = await db.get(
+      "SELECT MAX(id) AS id FROM sessions WHERE status = 'endSession'"
+    );
+    if (result && result.id) {
+      result = await db.get(
+        "SELECT MIN(id) AS id FROM sessions WHERE status = 'prepare'"
+      );
+
+      if (result && result.id) {
+        nextSessionData.sessionId = result.id;
+        nextSessionData.status = 'prepare';
+      } else {
+        nextSessionData.sessionId = 0;
+      }
+    } else {
+      result = await db.get(
+        "SELECT MIN(id) AS id FROM sessions WHERE status = 'prepare'"
+      );
+      if (result && result.id) {
+        nextSessionData.status = 'prepare';
+        nextSessionData.sessionId = result.id;
+      } else {
+        nextSessionData.sessionId = 0;
+      }
+    }
   }
+
+  const driverInfo = await db.all(
+    'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
+    [nextSessionData.sessionId]
+  );
+  nextSessionData.driverNameList = driverInfo.map(r => r.driver_name);
+
+  return nextSessionData;
 }
 
 async function fetchreconnectDataforReception(db) {
@@ -413,6 +443,18 @@ async function fetchreconnectDataforReception(db) {
   }
 }
 
+async function fetchLastId(db) {
+  let lastId;
+  const result = await db.get('SELECT MAX(id) AS id FROM sessions');
+
+  if (!result || !result.id) {
+    lastId = 0;
+    return lastId;
+  }
+
+  return result.id;
+}
+
 async function saveRaceMode(db, raceMode) {
   try {
     const sql = `UPDATE race_mode SET mode = ? WHERE id = 1`;
@@ -433,28 +475,31 @@ async function fetchRaceMode(db) {
 async function fetchEndTimeDataFromDb(db) {
   const endTime = new endTimeData();
   let result = await db.get(
-    "SELECT id, end_time FROM sessions WHERE status = 'start'"
+    "SELECT end_time AS endTime, id FROM sessions WHERE status = 'start'"
   );
-  if (result && result.end_time) {
+
+  if (result && result.endTime) {
     endTime.action = 'start';
-    endTime.endTime = result.end_time;
-    endTime.sessionId = result.id;
+    endTime.endTime = result.endTime;
     return endTime;
-  } else {
+  }
+
+  if (!result || !result.endTime) {
     result = await db.get(
-      "SELECT id, end_time FROM sessions WHERE status = 'finish'"
+      "SELECT end_time AS endTime FROM sessions WHERE status = 'finish'"
     );
-    if (result && result.end_time) {
+
+    if (result && result.endTime) {
       endTime.action = 'finish';
-      endTime.sessionId = result.id;
       return endTime;
-    } else {
+    }
+
+    if (!result || !result.endTime) {
       result = await db.get(
-        "SELECT MAX(id) AS id, end_time FROM sessions WHERE status = 'endSession'"
+        "SELECT end_time AS endTime FROM sessions WHERE status IN ('endSession', 'prepare')"
       );
 
       endTime.action = 'endSession';
-      endTime.sessionId = result.id;
       return endTime;
     }
   }
