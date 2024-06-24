@@ -1,10 +1,13 @@
 import { endTimeData, lapTime } from '../classes.js';
 
+let endTimeAction = 'endSession';
+
 setButtons();
 hideButtons();
 
 function setButtons() {
     socket.on('upcoming_session', (upcomingSessionData) => {
+        if (endTimeAction === 'start') return; 
         const buttongrid = document.querySelector('#buttongrid');
         buttongrid.style.display = 'none';
         // Clear the buttons from the previous session
@@ -33,10 +36,12 @@ function hideButtons() {
         if (endTimeData.action === 'finish' || endTimeData.action === 'endSession') {
             buttongrid.style.display = 'none';
             sessionMessage.style.display = 'block';
+            endTimeAction = 'endSession';
 
         } else if (endTimeData.action === 'start') {
             sessionMessage.style.display = 'none';
             buttongrid.style.display = 'grid';
+            endTimeAction = 'start';
         }  
     });
 }

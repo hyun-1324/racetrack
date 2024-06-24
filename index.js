@@ -312,7 +312,6 @@ async function fetchUpcomingSessionDataFromUpdate(db) {
       }
     }
     upcomingSessionData.sessionId = row.upcomingSessionId;
-    console.log('upcomingSessionId:', upcomingSessionData.sessionId);
 
     let sessionInfo = await db.get(
       'SELECT end_time AS endTime FROM sessions WHERE id = ?',
