@@ -73,31 +73,43 @@ initializeDb()
 
     // Attach socket.io to the HTTP server
     const io = new Server(server);
-    io.on('connection', async (socket) => {
+    io.on('connection', async socket => {
       // Emit all data needed by (re)connecting client
       try {
-        const fetchDataForPreparation = await fetchreconnectDataforReception(db);
+        const fetchDataForPreparation = await fetchreconnectDataforReception(
+          db
+        );
         socket.emit('reconnect_reception', fetchDataForPreparation);
-  
+
         const nextSessionInfo = await fetchNextSessionDataFromUpdate(db);
         socket.emit('next_session', nextSessionInfo);
-    
+
         const raceMode = await fetchRaceMode(db);
         socket.emit('race_mode', raceMode);
-        socket.emit('reconnect_race_mode', raceMode);
 
-        const upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(db);
+        const upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(
+          db
+        );
         socket.emit('upcoming_session', upcomingSessionInfo);
-        
-        const leaderboardInfo = await fetchLeaderboardDataFromDb(db, upcomingSessionInfo);
-        if (upcomingSessionInfo.status === 'prepare' || upcomingSessionInfo.status === 'endSession') {
+
+        const leaderboardInfo = await fetchLeaderboardDataFromDb(
+          db,
+          upcomingSessionInfo
+        );
+        if (
+          upcomingSessionInfo.status === 'prepare' ||
+          upcomingSessionInfo.status === 'endSession'
+        ) {
           socket.emit('reconnect_leaderboard', leaderboardInfo);
         }
-        
+
         const endTime = await fetchEndTimeDataFromDb(db);
         socket.emit('end_time', endTime);
-    
-        const lapTimeDatas = await fetchLapTimeDataFromDb(db, upcomingSessionInfo);
+
+        const lapTimeDatas = await fetchLapTimeDataFromDb(
+          db,
+          upcomingSessionInfo
+        );
         if (lapTimeDatas.length > 0) {
           for (const lapTimeData of lapTimeDatas) {
             socket.emit('update_lap_time', lapTimeData);
@@ -106,7 +118,7 @@ initializeDb()
       } catch (error) {
         console.error('Error handling connection:', error);
       }
-          
+
       // Listen for events from the clients
       socket.on('race_mode', async raceMode => {
         await saveRaceMode(db, raceMode);
@@ -144,7 +156,7 @@ initializeDb()
         io.emit('next_session', nextSessionData);
       });
 
-      socket.on('lap_data', async lapTime  => {
+      socket.on('lap_data', async lapTime => {
         const updatedLapTime = await updateLapTime(db, lapTime);
         io.emit('update_lap_time', updatedLapTime);
       });
@@ -165,7 +177,10 @@ initializeDb()
 
 async function fetchLeaderboardDataFromDb(db, upcomingSessionData) {
   // If race has eneded and new race has not yet started, fetch latest race's information
-  if (upcomingSessionData.status === 'prepare' || upcomingSessionData.status === 'endSession') {
+  if (
+    upcomingSessionData.status === 'prepare' ||
+    upcomingSessionData.status === 'endSession'
+  ) {
     try {
       const latestSession = await db.get(
         'SELECT MAX(id) AS id FROM sessions WHERE status = "endSession"'
@@ -177,7 +192,11 @@ async function fetchLeaderboardDataFromDb(db, upcomingSessionData) {
         'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
         [latestSession.id]
       );
-      return new sessionData(latestSession.id, 'endSession', driverInfo.map(r => r.driver_name));
+      return new sessionData(
+        latestSession.id,
+        'endSession',
+        driverInfo.map(r => r.driver_name)
+      );
     } catch (err) {
       console.error(err.message);
       throw err;
@@ -185,22 +204,25 @@ async function fetchLeaderboardDataFromDb(db, upcomingSessionData) {
   }
 }
 
-  
-
-  async function fetchLapTimeDataFromDb(db, upcomingSessionInfo) {
+async function fetchLapTimeDataFromDb(db, upcomingSessionInfo) {
   try {
     const lapTimeDatas = [];
     const lapTimeData = await db.all(
-        'SELECT session_id, car_num, lap_num, fastest_lap FROM lap_times WHERE session_id = ?',
-        [upcomingSessionInfo.sessionId]
-      );
+      'SELECT session_id, car_num, lap_num, fastest_lap FROM lap_times WHERE session_id = ?',
+      [upcomingSessionInfo.sessionId]
+    );
 
     if (!lapTimeData) {
       return lapTimeDatas;
     }
-   
+
     for (const row of lapTimeData) {
-      let laptime = new lapTimeUpdate(row.session_id, row.car_num, row.lap_num, row.fastest_lap);
+      let laptime = new lapTimeUpdate(
+        row.session_id,
+        row.car_num,
+        row.lap_num,
+        row.fastest_lap
+      );
       lapTimeDatas.push(laptime);
     }
     return lapTimeDatas;

@@ -60,6 +60,7 @@ function endSession() {
 }
 
 function setMode(mode) {
+  console.log(mode);
   socket.emit('race_mode', mode);
   setCurrentModeOnDisplay(mode);
 
@@ -129,6 +130,7 @@ async function getTimerDuration() {
 }
 
 async function timer(endTime) {
+  if (countdownFunction) clearInterval(countdownFunction);
   timerDuration = await getTimerDuration();
 
   // Update the count down every 1 second
@@ -215,4 +217,3 @@ socket.on('reconnect_race_mode', mode => {
     hideElements(start);
   }
 });
-
