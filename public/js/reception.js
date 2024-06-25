@@ -4,6 +4,16 @@ document.getElementById('addSession').addEventListener('click', addSession);
 document
   .getElementById('removeSession')
   .addEventListener('click', removeSessions);
+const reset = document.getElementById('resetSession');
+reset.addEventListener('click', function () {
+  if (
+    confirm(
+      'Do you really want to reset the session? Your previous data will be safely stored in the database'
+    )
+  ) {
+    resetSessions();
+  }
+});
 
 let sessionIdCounter = 1;
 
@@ -106,8 +116,12 @@ function removeSessions() {
   }
 }
 
+function resetSessions() {
+  socket.emit('reset');
+}
+
 socket.on('end_time', data => {
-  if ((data.action = 'start')) {
+  if (data.action === 'start') {
     const tableBody = document
       .getElementById('sessionsTable')
       .getElementsByTagName('tbody')[0];
@@ -120,6 +134,9 @@ socket.on('end_time', data => {
         break;
       }
     }
+    reset.disabled = true;
+  } else if (data.action === 'endSession') {
+    reset.disabled = false;
   }
 });
 

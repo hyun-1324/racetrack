@@ -1,9 +1,11 @@
 // Import necessary modules
-import express from 'express';
 import { createServer } from 'node:http';
-import { Server } from 'socket.io';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import fs from 'node:fs';
+import express from 'express';
+import { Server } from 'socket.io';
+import moment from 'moment';
 import { checkAccessKeysExist, checkAccess } from './accessKey.js';
 import { initializeDb } from './database/initializeDb.js';
 import { sessionData, endTimeData, lapTimeUpdate } from './public/classes.js';
@@ -160,6 +162,37 @@ initializeDb()
       socket.on('lap_data', async lapTime => {
         const updatedLapTime = await updateLapTime(db, lapTime);
         io.emit('update_lap_time', updatedLapTime);
+      });
+
+      socket.on('reset', () => {
+        const dbPath = join(__dirname, 'database', 'database.db');
+        const initSqlPath = join(__dirname, 'database', 'initial.sql');
+        const backupFolderPath = join(__dirname, 'database', 'backup');
+        const backupFileName = `database_${moment().format(
+          'YYYYMMDD_HHmmss'
+        )}.db`;
+        const backupFilePath = join(backupFolderPath, backupFileName);
+
+        fs.copyFile(dbPath, backupFilePath, err => {
+          if (err) {
+            console.error('Error copying database file:', err);
+            return res.status(500).send('Error copying database file');
+          }
+
+          fs.readFile(initSqlPath, 'utf8', (err, sql) => {
+            if (err) {
+              console.error('Error reading SQL file:', err);
+              return res.status(500).send('Error reading SQL file');
+            }
+
+            db.exec(sql, err => {
+              if (err) {
+                console.error('Error executing SQL:', err);
+                return res.status(500).send('Error executing SQL');
+              }
+            });
+          });
+        });
       });
     });
 
@@ -480,17 +513,20 @@ async function fetchEndTimeDataFromDb(db) {
 
   if (result && result.endTime) {
     endTime.action = 'start';
+    endTime.sessionId = result.id;
     endTime.endTime = result.endTime;
     return endTime;
   }
 
   if (!result || !result.endTime) {
     result = await db.get(
-      "SELECT end_time AS endTime FROM sessions WHERE status = 'finish'"
+      "SELECT end_time AS endTime, id FROM sessions WHERE status = 'finish'"
     );
 
     if (result && result.endTime) {
       endTime.action = 'finish';
+      endTime.sessionId = result.id;
+      endTime.endTime = result.endTime;
       return endTime;
     }
 
@@ -498,7 +534,6 @@ async function fetchEndTimeDataFromDb(db) {
       result = await db.get(
         "SELECT end_time AS endTime FROM sessions WHERE status IN ('endSession', 'prepare')"
       );
-
       endTime.action = 'endSession';
       return endTime;
     }
