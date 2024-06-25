@@ -129,6 +129,7 @@ async function getTimerDuration() {
 }
 
 async function timer(endTime) {
+  if (countdownFunction) clearInterval(countdownFunction);
   timerDuration = await getTimerDuration();
 
   // Update the count down every 1 second
@@ -193,6 +194,27 @@ socket.on('upcoming_session', data => {
     showElements(modeButtons);
     endSessionStatus = false;
     start.disabled = true;
+  } else if (
+    upcomingSessionData.endTime - now < 0 &&
+    upcomingSessionData.sessionId !== 0 &&
+    (upcomingSessionData.status === 'start' ||
+      upcomingSessionData.status === 'finish')
+  ) {
+    sessionId = upcomingSessionData.sessionId;
+    sessionIdEl.textContent = sessionId;
+    document.getElementById('timer').innerHTML = 'Race Completed!';
+    showElements(sessionInfo);
+    showElements(end);
+    hideElements(modeButtons);
+    hideElements(noRaces);
+    hideElements(start);
+    endSessionStatus = false;
+    start.disabled = true;
+
+    for (let i = 1; i < 9; i++) {
+      const name = document.getElementById(`car${i}`);
+      name.textContent = upcomingSessionData.driverNameList[i - 1];
+    }
   } else if (endSessionStatus && upcomingSessionData.sessionId !== 0) {
     showElements(sessionInfo);
     hideElements(noRaces);
@@ -207,6 +229,7 @@ socket.on('upcoming_session', data => {
 });
 
 socket.on('reconnect_race_mode', mode => {
+  socket.emit('race_mode', mode);
   setCurrentModeOnDisplay(mode);
 
   if (mode === 'finish') {
@@ -215,4 +238,3 @@ socket.on('reconnect_race_mode', mode => {
     hideElements(start);
   }
 });
-

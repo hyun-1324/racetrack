@@ -18,7 +18,6 @@ let nextSessionData = new sessionData(0, undefined, [
 ]);
 
 socket.on('next_session', data => {
-  console.log(data);
   nextSessionData = data;
   if (nextSessionData.sessionId === 0) {
     sessionInfo.style.display = 'none';
@@ -103,4 +102,3 @@ document.addEventListener('fullscreenchange', () => {
     fullscreenButton.textContent = 'Full Screen';
   }
 });
-
