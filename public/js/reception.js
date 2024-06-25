@@ -123,8 +123,6 @@ socket.on('end_time', data => {
   }
 });
 
-socket.emit('reconnect', 'reception');
-
 socket.on('reconnect_reception', (data, lastId) => {
   sessionIdCounter = lastId + 1;
   if (data.length === 0) {
