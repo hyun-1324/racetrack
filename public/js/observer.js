@@ -1,4 +1,4 @@
-import { endTimeData, lapTime } from '../classes.js';
+import { lapTime } from '../classes.js';
 
 let endTimeAction = 'endSession';
 
@@ -7,7 +7,7 @@ hideButtons();
 
 function setButtons() {
     socket.on('upcoming_session', (upcomingSessionData) => {
-        if (endTimeAction === 'start') return; 
+        if (endTimeAction === 'start' || upcomingSessionData.sessionId === 0) return; 
         const buttongrid = document.querySelector('#buttongrid');
         buttongrid.style.display = 'none';
         // Clear the buttons from the previous session
