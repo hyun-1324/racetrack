@@ -87,10 +87,9 @@ initializeDb()
 
         const raceMode = await fetchRaceMode(db);
         socket.emit('reconnect_race_mode', raceMode);
+        socket.emit('race_mode', raceMode);
 
-        const upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(
-          db
-        );
+        let upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(db);
         socket.emit('upcoming_session', upcomingSessionInfo);
 
         const leaderboardInfo = await fetchLeaderboardDataFromDb(
@@ -102,6 +101,7 @@ initializeDb()
           upcomingSessionInfo.status === 'endSession'
         ) {
           socket.emit('reconnect_leaderboard', leaderboardInfo);
+          upcomingSessionInfo = leaderboardInfo;
         }
 
         const endTime = await fetchEndTimeDataFromDb(db);
