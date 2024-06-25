@@ -87,6 +87,7 @@ initializeDb()
 
         const raceMode = await fetchRaceMode(db);
         socket.emit('reconnect_race_mode', raceMode);
+        socket.emit('race_mode', raceMode);
 
         let upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(db);
         socket.emit('upcoming_session', upcomingSessionInfo);
