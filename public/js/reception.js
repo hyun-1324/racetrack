@@ -121,13 +121,22 @@ function resetSessions() {
 }
 
 socket.on('end_time', data => {
-  if (data.action === 'start') {
+  if (data.action === 'endSession') {
+    reset.disabled = false;
+  } else if (data.action === 'reset') {
     const tableBody = document
       .getElementById('sessionsTable')
       .getElementsByTagName('tbody')[0];
-
+    const rows = tableBody.querySelectorAll('tr');
+    // Delete existing rows
+    rows.forEach(row => row.remove());
+  } else if (data.action === 'start') {
+    const tableBody = document
+      .getElementById('sessionsTable')
+      .getElementsByTagName('tbody')[0];
+    console.log(tableBody);
     const rows = tableBody.getElementsByTagName('tr');
-
+    console.log(rows);
     for (let i = 0; i < rows.length; i++) {
       if (Number(rows[i].cells[1].textContent) === Number(data.sessionId)) {
         tableBody.removeChild(rows[i]);
@@ -135,8 +144,6 @@ socket.on('end_time', data => {
       }
     }
     reset.disabled = true;
-  } else if (data.action === 'endSession') {
-    reset.disabled = false;
   }
 });
 

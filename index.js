@@ -2,7 +2,7 @@
 import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import fs from 'node:fs';
+import { promises as fs } from 'node:fs';
 import express from 'express';
 import { Server } from 'socket.io';
 import moment from 'moment';
@@ -164,35 +164,29 @@ initializeDb()
         io.emit('update_lap_time', updatedLapTime);
       });
 
-      socket.on('reset', () => {
-        const dbPath = join(__dirname, 'database', 'database.db');
-        const initSqlPath = join(__dirname, 'database', 'initial.sql');
-        const backupFolderPath = join(__dirname, 'database', 'backup');
-        const backupFileName = `database_${moment().format(
-          'YYYYMMDD_HHmmss'
-        )}.db`;
-        const backupFilePath = join(backupFolderPath, backupFileName);
+      socket.on('reset', async () => {
+        try {
+          const dbPath = join(__dirname, 'database', 'database.db');
+          const initSqlPath = join(__dirname, 'database', 'initial.sql');
+          const backupFolderPath = join(__dirname, 'database', 'backup');
+          const backupFileName = `database_${moment().format(
+            'YYYYMMDD_HHmmss'
+          )}.db`;
+          const backupFilePath = join(backupFolderPath, backupFileName);
 
-        fs.copyFile(dbPath, backupFilePath, err => {
-          if (err) {
-            console.error('Error copying database file:', err);
-            return res.status(500).send('Error copying database file');
-          }
+          await fs.copyFile(dbPath, backupFilePath);
 
-          fs.readFile(initSqlPath, 'utf8', (err, sql) => {
-            if (err) {
-              console.error('Error reading SQL file:', err);
-              return res.status(500).send('Error reading SQL file');
-            }
+          const sql = await fs.readFile(initSqlPath, 'utf8');
 
-            db.exec(sql, err => {
-              if (err) {
-                console.error('Error executing SQL:', err);
-                return res.status(500).send('Error executing SQL');
-              }
-            });
-          });
-        });
+          await db.exec(sql);
+
+          io.emit('next_session', new sessionData(0));
+          io.emit('upcoming_session', new sessionData(0));
+          io.emit('end_time', new endTimeData(0, 'reset'));
+          io.emit('race_mode', 'danger');
+        } catch (error) {
+          console.error('Error handling connection:', error);
+        }
       });
     });
 

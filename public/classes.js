@@ -1,7 +1,7 @@
 export class endTimeData {
   constructor(sessionId, action, endTime) {
     this.sessionId = sessionId;
-    this.action = action; // 'start', 'endSession', 'finish'
+    this.action = action; // 'start', 'endSession', 'finish, 'reset''
     this.endTime = endTime;
   }
 }
@@ -33,7 +33,7 @@ export class lapTimeUpdate {
   }
 }
 
-// Class for data being sent via 'next_session' and 'upcoming_session' socket event 
+// Class for data being sent via 'next_session' and 'upcoming_session' socket event
 export class sessionData {
   constructor(sessionId, status, driverNameList) {
     this.sessionId = sessionId;
