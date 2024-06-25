@@ -10,7 +10,7 @@ export function showTimer() {
       document.getElementById('timer').innerText = 'Race Completed!';
     } else if (data.action === 'start') {
       timer(data.endTime);
-    } else if ((data.action === 'endSession') & (data.action === 'reset')) {
+    } else if (data.action === 'endSession' || data.action === 'reset') {
       document.getElementById('timer').innerText = '00:00:00';
     }
   });

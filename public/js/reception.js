@@ -124,6 +124,7 @@ socket.on('end_time', data => {
   if (data.action === 'endSession') {
     reset.disabled = false;
   } else if (data.action === 'reset') {
+    sessionIdCounter = 1;
     const tableBody = document
       .getElementById('sessionsTable')
       .getElementsByTagName('tbody')[0];
