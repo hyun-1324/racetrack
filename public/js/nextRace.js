@@ -1,6 +1,7 @@
 import { sessionData } from '../classes.js';
 
 const sessionInfo = document.getElementById('sessionInfo');
+const driverNames = document.getElementById('driverNames');
 const noRaces = document.getElementById('noRaces');
 const proceedMessage = document.getElementById('proceedMessage');
 const fullscreenButton = document.getElementById('fullScreenButton');
@@ -27,6 +28,7 @@ socket.on('next_session', data => {
     nextSessionData.status === 'endSession'
   ) {
     sessionInfo.style.display = 'block';
+    driverNames.style.display = 'grid';
     proceedMessage.style.display = 'block';
     noRaces.style.display = 'none';
     sessionId.textContent = nextSessionData.sessionId;
@@ -36,6 +38,7 @@ socket.on('next_session', data => {
     nextSessionData.status === 'start'
   ) {
     sessionInfo.style.display = 'block';
+    driverNames.style.display = 'grid';
     proceedMessage.style.display = 'none';
     noRaces.style.display = 'none';
     sessionId.textContent = nextSessionData.sessionId;
@@ -45,6 +48,7 @@ socket.on('next_session', data => {
     nextSessionData.status === 'prepare'
   ) {
     sessionInfo.style.display = 'block';
+    driverNames.style.display = 'grid';
     proceedMessage.style.display = 'block';
     noRaces.style.display = 'none';
     sessionId.textContent = nextSessionData.sessionId;
@@ -53,7 +57,7 @@ socket.on('next_session', data => {
 });
 
 function addDriversInfo(driverNameList) {
-  document.querySelector('.driverNames').style.display = 'block';
+  document.querySelector('#driverNames').style.display = 'grid';
   for (let i = 0; i < 8; i++) {
     const driverName = document.getElementById(`car${[i + 1]}`);
     if (driverNameList[i] === '' || driverNameList[i] === null) {

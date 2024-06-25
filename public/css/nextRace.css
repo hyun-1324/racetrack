@@ -3,17 +3,29 @@ body {
   overflow-wrap: break-word;
 }
 
-.driverNames {
+h1 {
+  margin:20px auto;
+  font-size: 50px;
+}
+
+h2 {
+  margin: 20px auto;
+  font-size: 40px;
+  text-align: center;
+}
+
+#driverNames {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  font-size: 50px;
-  justify-items: center;
-  align-items: start;
+  margin-top: 100px;
+  margin-left: 50px;
+  margin-right: 50px;
+  font-size: 60px;
 }
 
-.driverNames p {
-  margin: 0;
+#driverNames p {
+  margin-top: 20px;
   text-align: left;
   width: 100%;
 }
@@ -48,6 +60,8 @@ body {
 
 #noRaces {
   display: block;
+  text-align: center;
+  font-size: 50px;
 }
 
 @keyframes blink {
