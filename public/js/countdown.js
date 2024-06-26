@@ -10,7 +10,7 @@ export function showTimer() {
       document.getElementById('timer').innerText = 'Race Completed!';
     } else if (data.action === 'start') {
       timer(data.endTime);
-    } else if (data.action === 'endSession') {
+    } else if (data.action === 'endSession' || data.action === 'reset') {
       document.getElementById('timer').innerText = '00:00:00';
     }
   });
@@ -52,7 +52,7 @@ export function showTimer() {
       }
     }, 10);
   }
-}  
+}
 
 export function fullscreenButton() {
   const fullscreenButton = document.getElementById('fullScreenButton');
@@ -86,14 +86,12 @@ export function fullscreenButton() {
       }
     }
   });
-  
+
   document.addEventListener('fullscreenchange', () => {
     if (document.fullscreenElement) {
       fullscreenButton.textContent = 'Exit Full Screen';
     } else {
       fullscreenButton.textContent = 'Full Screen';
     }
-  });  
+  });
 }
-
-

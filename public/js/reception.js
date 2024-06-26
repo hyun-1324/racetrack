@@ -4,6 +4,16 @@ document.getElementById('addSession').addEventListener('click', addSession);
 document
   .getElementById('removeSession')
   .addEventListener('click', removeSessions);
+const reset = document.getElementById('resetSession');
+reset.addEventListener('click', function () {
+  if (
+    confirm(
+      'Do you really want to reset the session? Your previous data will be safely stored in the database'
+    )
+  ) {
+    resetSessions();
+  }
+});
 
 let sessionIdCounter = 1;
 
@@ -106,20 +116,35 @@ function removeSessions() {
   }
 }
 
+function resetSessions() {
+  socket.emit('reset');
+}
+
 socket.on('end_time', data => {
-  if ((data.action = 'start')) {
+  if (data.action === 'endSession') {
+    reset.disabled = false;
+  } else if (data.action === 'reset') {
+    sessionIdCounter = 1;
     const tableBody = document
       .getElementById('sessionsTable')
       .getElementsByTagName('tbody')[0];
-
+    const rows = tableBody.querySelectorAll('tr');
+    // Delete existing rows
+    rows.forEach(row => row.remove());
+  } else if (data.action === 'start') {
+    const tableBody = document
+      .getElementById('sessionsTable')
+      .getElementsByTagName('tbody')[0];
+    console.log(tableBody);
     const rows = tableBody.getElementsByTagName('tr');
-
+    console.log(rows);
     for (let i = 0; i < rows.length; i++) {
       if (Number(rows[i].cells[1].textContent) === Number(data.sessionId)) {
         tableBody.removeChild(rows[i]);
         break;
       }
     }
+    reset.disabled = true;
   }
 });
 

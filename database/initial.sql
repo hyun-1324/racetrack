@@ -1,3 +1,8 @@
+DROP TABLE IF EXISTS "sessions";
+DROP TABLE IF EXISTS "race_mode";
+DROP TABLE IF EXISTS "driver_car_assignments";
+DROP TABLE IF EXISTS "lap_times";
+
 CREATE TABLE "sessions" (
   "id" INTEGER PRIMARY KEY,
   "status" TEXT,

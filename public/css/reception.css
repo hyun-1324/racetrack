@@ -28,6 +28,7 @@ td input[type='text'] {
 }
 
 .buttons {
+  margin-top: 10px;
   text-align: right;
   margin-bottom: 10px;
 }
