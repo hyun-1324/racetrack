@@ -1,3 +1,11 @@
+let currentRaceData
+socket.on('upcoming_session', (data) => {
+    currentRaceData = data;
+});
+socket.on('reconnect_leaderboard', (data) => {
+    currentRaceData = data;
+});
+
 showTimer();
 fullscreenButton();
 
@@ -11,7 +19,11 @@ export function showTimer() {
     } else if (data.action === 'start') {
       timer(data.endTime);
     } else if (data.action === 'endSession') {
-      document.getElementById('timer').innerText = 'Race Completed!';
+      if (currentRaceData.sessionId === 0) {
+        document.getElementById('timer').innerText = '00:00:00';
+      } else {
+        document.getElementById('timer').innerText = 'Race Completed!';
+      }
     } else if (data.action === 'reset') {
       document.getElementById('timer').innerText = '00:00:00';
     }
