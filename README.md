@@ -98,10 +98,16 @@ Route: `/front-desk`
 
 Front desk -interface is designed to be used on a desktop screen by the receptionist.
 
-Receptionist is able to add or remove sessions and also add/remove/edit drivers in each race session.  
-Receptionist can assign drivers to cars by writing the driver's name in the column of a selected car.
+Receptionist is able to:
 
-As a bonus receptionist can reset sessions so that previous sessions are saved to a database file in `database/backup` directory and session count starts from 1 again.
+- Add sessions by pressing `Add Session` -button
+- Assign drivers to cars by writing their names to the column of a selected car and then pressing `Save`
+- Edit drivers (remove, add or change the names) in sessions by pressing `Edit` and after changes pressing `Save`
+- Remove sessions by selecting sessions to remove using checkboxes in the leftmost column and then pressing `Remove Sessions` 
+
+As a bonus receptionist can reset sessions so that previous sessions are saved to a database file in `database/backup` directory and session count starts from 1 again. This feature is only availabe between race sessions.
+
+![alt text](readme-images/image8.png)
 
 #### Lap line tracker
 
