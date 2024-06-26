@@ -86,7 +86,7 @@ Use the values assigned to
 `receptionist_key`,  
 `observer_key` and  
 `safety_key`  
-as keys respectfully.
+as keys respectively.
 
 For example the front desk login looks like this:
 
@@ -105,7 +105,7 @@ Receptionist is able to:
 - Edit drivers (remove, add or change the names) in sessions by pressing `Edit` and after changes pressing `Save`
 - Remove sessions by selecting sessions to remove using checkboxes in the leftmost column and then pressing `Remove Sessions` 
 
-As a bonus receptionist can reset sessions so that previous sessions are saved to a database file in `database/backup` directory and session count starts from 1 again. This feature is only availabe between race sessions.
+As a bonus receptionist can reset sessions so that previous sessions are saved into a database file in `database/backup` directory and session count starts from 1 again. This feature is only availabe between race sessions.
 
 ![alt text](readme-images/image8.png)
 
