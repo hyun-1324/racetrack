@@ -38,6 +38,12 @@ function createLeaderBoard() {
     const session = document.getElementById('sessionNumber');
     const message = document.getElementById('noSessionMessage');
     socket.on('end_time', (timeData) => {
+        if (timeData.action === 'reset') {
+            message.style.display = 'block';
+            leaderBoard.style.display = 'none';
+            session.textContent = '-';
+            return;
+        }
         if (currentRaceData.sessionId === 0) return;
         if (timeData.action === 'start' || leaderBoard.rows.length === 1) {
             session.textContent = currentRaceData.sessionId;
