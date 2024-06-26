@@ -101,7 +101,7 @@ Front desk -interface is designed to be used on a desktop screen by the receptio
 Receptionist is able to add or remove sessions and also add/remove/edit drivers in each race session.  
 Receptionist can assign drivers to cars by writing the driver's name in the column of a selected car.
 
-As a bonus receptionist can reset sessions so that previous sessions are saved to file and session count starts from 1 again.
+As a bonus receptionist can reset sessions so that previous sessions are saved to a database file in `database/backup` directory and session count starts from 1 again.
 
 #### Lap line tracker
 
@@ -138,6 +138,10 @@ Public interfaces are displayed in 40-75 inch monitors and do not require a key 
 Route: `/next-race`
 
 Next race public interface shows next race's drivers and the cars they are assigned to. When the previous session ends and it is safe for the drivers to move to the cars, "Proceed to the peddoc" message flashes on the screen.
+
+Example of the next race interface:
+
+![alt text](readme-images/image7.png)
 
 #### Race Flag
 
