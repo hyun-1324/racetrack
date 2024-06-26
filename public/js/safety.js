@@ -52,6 +52,11 @@ function endSession() {
   showElements(start);
   endSessionStatus = true;
   socket.emit('end_time', new endTimeData(sessionId, 'endSession', endTime));
+  if (Number(timerDuration) === 60) {
+    document.getElementById('timer').innerHTML = '01:00:00';
+  } else if (Number(timerDuration) === 600) {
+    document.getElementById('timer').innerHTML = '10:00:00';
+  }
 
   for (let i = 1; i < 9; i++) {
     const name = document.getElementById(`car${i}`);
@@ -220,6 +225,10 @@ socket.on('upcoming_session', data => {
     hideElements(noRaces);
     sessionId = upcomingSessionData.sessionId;
     sessionIdEl.textContent = sessionId;
+    for (let i = 1; i < 9; i++) {
+      const name = document.getElementById(`car${i}`);
+      name.textContent = upcomingSessionData.driverNameList[i - 1];
+    }
     if (
       upcomingSessionData.driverNameList.every(
         name => name === '' || name === null
@@ -227,10 +236,6 @@ socket.on('upcoming_session', data => {
     ) {
       start.disabled = true;
     } else {
-      for (let i = 1; i < 9; i++) {
-        const name = document.getElementById(`car${i}`);
-        name.textContent = upcomingSessionData.driverNameList[i - 1];
-      }
       start.disabled = false;
     }
   }
