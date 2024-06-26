@@ -220,11 +220,19 @@ socket.on('upcoming_session', data => {
     hideElements(noRaces);
     sessionId = upcomingSessionData.sessionId;
     sessionIdEl.textContent = sessionId;
-    for (let i = 1; i < 9; i++) {
-      const name = document.getElementById(`car${i}`);
-      name.textContent = upcomingSessionData.driverNameList[i - 1];
+    if (
+      upcomingSessionData.driverNameList.every(
+        name => name === '' || name === null
+      )
+    ) {
+      start.disabled = true;
+    } else {
+      for (let i = 1; i < 9; i++) {
+        const name = document.getElementById(`car${i}`);
+        name.textContent = upcomingSessionData.driverNameList[i - 1];
+      }
+      start.disabled = false;
     }
-    start.disabled = false;
   }
 });
 
