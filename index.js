@@ -173,7 +173,7 @@ initializeDb()
             'YYYYMMDD_HHmmss'
           )}.db`;
           const backupFilePath = join(backupFolderPath, backupFileName);
-
+          await fs.mkdir(backupFolderPath, { recursive: true });
           await fs.copyFile(dbPath, backupFilePath);
 
           const sql = await fs.readFile(initSqlPath, 'utf8');
