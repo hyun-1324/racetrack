@@ -220,8 +220,11 @@ socket.on('upcoming_session', data => {
     hideElements(noRaces);
     sessionId = upcomingSessionData.sessionId;
     sessionIdEl.textContent = sessionId;
-
-    if (upcomingSessionData.driverNameList.every(name => name === '')) {
+    if (
+      upcomingSessionData.driverNameList.every(
+        name => name === '' || name === null
+      )
+    ) {
       start.disabled = true;
     } else {
       for (let i = 1; i < 9; i++) {
