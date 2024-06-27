@@ -1,4 +1,4 @@
-import { sessionData, endTimeData } from './public/classes.js';
+import { sessionData, endTimeData } from '../public/classes.js';
 
 export async function updateSessionInfo(db, updatedSession) {
     try {

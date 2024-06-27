@@ -6,10 +6,10 @@ import { promises as fs } from 'node:fs';
 import express from 'express';
 import { Server } from 'socket.io';
 import moment from 'moment';
-import { checkAccessKeysExist, checkAccess } from './accessKey.js';
+import { checkAccessKeysExist, checkAccess } from './dataHandling/accessKey.js';
 import { initializeDb } from './database/initializeDb.js';
 import { sessionData, endTimeData } from './public/classes.js';
-import { updateLapTime, fetchLeaderboardDataFromDb, fetchLapTimeDataFromDb } from './lapTimes.js';
+import { updateLapTime, fetchLeaderboardDataFromDb, fetchLapTimeDataFromDb } from './dataHandling/lapTimes.js';
 import { 
   fetchNextSessionData, 
   fetchUpcomingSessionDataFromUpdate, 
@@ -21,7 +21,7 @@ import {
   fetchRaceMode,
   fetchReconnectDataforReception,
   fetchLastId 
-} from './sessions.js';
+} from './dataHandling/sessions.js';
 
 // Check that access keys are set
 const result = checkAccessKeysExist();

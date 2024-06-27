@@ -1,4 +1,4 @@
-import {lapTimeUpdate, sessionData} from './public/classes.js';
+import {lapTimeUpdate, sessionData} from '../public/classes.js';
 
 // Update the lap time data in the database when a car crosses the lap line
 // Return lapTimeUpdate object with updated lap number and fastest lap time to be emitted to the clients
