@@ -123,7 +123,8 @@ When the race starts, buttons for each car in the current race appear to the lap
 
 Route: `/race-control`
 
-Race control interface is designed to be used on a small mobile device like a smart phone by the safety official.
+Race control interface is designed to be used on a small mobile device like a smart phone by the safety official.  
+The interface works both in landscape and portrait orientation.
 
 Safety official controls the race by starting the race session, controlling current race mode and ending the race session.
 
