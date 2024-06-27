@@ -5,6 +5,8 @@ document
   .getElementById('removeSession')
   .addEventListener('click', removeSessions);
 const reset = document.getElementById('resetSession');
+
+// Add an eventListener for the reset confirmation message
 reset.addEventListener('click', function () {
   if (
     confirm(
@@ -17,6 +19,7 @@ reset.addEventListener('click', function () {
 
 let sessionIdCounter = 1;
 
+// Define the add button functionality
 function addSession() {
   const tableBody = document
     .getElementById('sessionsTable')
@@ -48,6 +51,7 @@ function addSession() {
   cellActions.appendChild(editButton);
 }
 
+// Define the edit button functionality
 function editDrivers(row) {
   const inputs = row.getElementsByTagName('input');
   const driverNameList = [];
@@ -78,13 +82,14 @@ function editDrivers(row) {
   }
 
   const button = row.getElementsByTagName('button');
-  if (button[0].innerHTML === 'Edit') {
-    button[0].innerHTML = 'Save';
-  } else if (button[0].innerHTML === 'Save') {
-    button[0].innerHTML = 'Edit';
+  if (button[0].textContent === 'Edit') {
+    button[0].textContent = 'Save';
+  } else if (button[0].textContent === 'Save') {
+    button[0].textContent = 'Edit';
   }
 }
 
+// Check for duplicate driver names
 function hasDuplicates(array) {
   let uniqueNameArray = [];
   for (let i = 0; i < 8; i++) {
@@ -96,6 +101,7 @@ function hasDuplicates(array) {
   return uniqueElements.size !== uniqueNameArray.length;
 }
 
+// Define the remove button functionality
 function removeSessions() {
   const tableBody = document
     .getElementById('sessionsTable')
@@ -118,6 +124,7 @@ function resetSessions() {
   socket.emit('reset');
 }
 
+// Activate and Deactivate buttons based on end time data
 socket.on('end_time', data => {
   if (data.action === 'endSession') {
     reset.disabled = false;
@@ -144,6 +151,7 @@ socket.on('end_time', data => {
   }
 });
 
+// Fetch data for reconnection
 socket.on('reconnect_reception', (data, lastId) => {
   sessionIdCounter = lastId + 1;
   if (data.length === 0) {
