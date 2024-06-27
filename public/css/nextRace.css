@@ -41,7 +41,7 @@ h2 {
   bottom: 20px;
   right: 20px;
   padding: 5px 10px;
-  font-size: 15px;
+  font-size: 2vh;
   background-color: #000;
   color: #fff;
   border: none;
@@ -60,7 +60,7 @@ h2 {
 #noRaces {
   display: block;
   text-align: center;
-  font-size: 50px;
+  font-size: 5vh;
 }
 
 @keyframes blink {
