@@ -33,6 +33,7 @@ function flags() {
       });
 }
 
+// Create the leader board table with the current session's drivers
 function createLeaderBoard() {
     const leaderBoard = document.getElementById('leaderBoard');
     const session = document.getElementById('sessionNumber');
@@ -71,12 +72,14 @@ function createLeaderBoard() {
     });  
 }
 
+//Update the leader board with the current lap and fastest lap time
 function updateLeaderboard() {
     const leaderBoard = document.getElementById('leaderBoard');
     socket.on('update_lap_time', (updatedLapTime) => {
         // find a row that has the matching car number in column 0
         const rowToUpdate = Array.from(leaderBoard.rows).find(row => row.cells[0].textContent === updatedLapTime.carNumber.toString());
         rowToUpdate.cells[2].textContent = updatedLapTime.currentLap;
+
         // Convert fastest lap time to mm:ss:ms or display '-' if no fastest lap time
         if (updatedLapTime.fastestLap === 0)  {
             rowToUpdate.cells[3].textContent = '-';
@@ -91,10 +94,12 @@ function updateLeaderboard() {
             if (a.cells[3].textContent === '-') return 1;
             return TimeToMs(a.cells[3].textContent) - TimeToMs(b.cells[3].textContent);
         });
+
         // Remove all rows from the table
         while (leaderBoard.rows.length > 1) {
             leaderBoard.deleteRow(1);
         }
+
         // Add the sorted rows back to the table
         tableRows.forEach((row) => {
             leaderBoard.append(row);
@@ -102,8 +107,8 @@ function updateLeaderboard() {
     });
 }
 
+// Convert time from format 'mm:ss:ms' to milliseconds
 function TimeToMs(time) {
-    // Convert mm:ss:ms to milliseconds
     const timeArray = time.split(':');
     const minutes = parseInt(timeArray[0]) * 60 * 1000;
     const seconds = parseInt(timeArray[1]) * 1000;
@@ -111,8 +116,8 @@ function TimeToMs(time) {
     return minutes + seconds + milliseconds;
 }
 
+// Convert fastest lap time from milliseconds to format 'mm:ss:ms'
 function msToTime(duration) {
-    // Convert fastest lap time to mm:ss:ms
     let milliseconds = parseInt((duration % 1000) / 10),
         seconds = Math.floor((duration / 1000) % 60),
         minutes = Math.floor((duration / (1000 * 60)) % 60);

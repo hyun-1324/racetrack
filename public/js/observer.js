@@ -5,6 +5,7 @@ let endTimeAction = 'endSession';
 setButtons();
 hideButtons();
 
+// Create buttons for each driver when the session starts or is already on 
 function setButtons() {
     socket.on('upcoming_session', (upcomingSessionData) => {
         if (endTimeAction === 'start' || upcomingSessionData.sessionId === 0) return; 
@@ -29,6 +30,7 @@ function setButtons() {
     });
 }
 
+// Hide buttons when the session ends or has already ended
 function hideButtons() {
     const buttongrid = document.querySelector('#buttongrid');
     const sessionMessage = document.querySelector('#sessionMessage');

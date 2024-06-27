@@ -137,7 +137,7 @@ async function timer(endTime) {
   if (countdownFunction) clearInterval(countdownFunction);
   timerDuration = await getTimerDuration();
 
-  // Update the count down every 1 second
+  // Update the count down every 10 milliseconds
   countdownFunction = setInterval(function () {
     // Get today's date and time
     let now = new Date().getTime();
@@ -145,8 +145,7 @@ async function timer(endTime) {
     // Find the distance between now and the count down date
     let distance = endTime - now;
 
-    // Time calculations for hours, minutes and seconds
-
+    // Time calculations for minutes, seconds and milliseconds
     let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     let seconds = Math.floor((distance % (1000 * 60)) / 1000);
     let milliseconds = Math.floor((distance % 1000) / 10);
