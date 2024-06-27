@@ -5,23 +5,22 @@ body {
 
 h1 {
   margin:20px auto;
-  font-size: 50px;
+  font-size: 5vh;
 }
 
 h2 {
   margin: 20px auto;
-  font-size: 40px;
+  font-size: 4vh;
   text-align: center;
 }
 
 #driverNames {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  padding-top: 5vh;
   gap: 10px;
-  margin-top: 100px;
-  margin-left: 50px;
-  margin-right: 50px;
-  font-size: 60px;
+  margin-left: 3vw;
+  font-size: 5vh; 
 }
 
 #driverNames p {
@@ -34,7 +33,7 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 #fullScreenButton {
@@ -78,5 +77,5 @@ h2 {
   animation: blink 1s infinite;
   color: red;
   text-align: center;
-  font-size: 50px;
+  font-size: 5vh;
 }

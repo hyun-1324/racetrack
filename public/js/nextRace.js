@@ -64,7 +64,7 @@ function addDriversInfo(driverNameList) {
       driverName.style.display = 'none';
     } else {
       driverName.style.display = 'block';
-      driverName.textContent = `Car${i + 1}: ` + driverNameList[i];
+      driverName.textContent = `Car ${i + 1}: ` + driverNameList[i];
     }
   }
 }
