@@ -1,3 +1,4 @@
+// Fill HTML with the correct text and action based on the path and error message
 function fillHTML() {
     const path = window.location.pathname;
 

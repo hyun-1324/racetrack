@@ -8,7 +8,7 @@ const reset = document.getElementById('resetSession');
 reset.addEventListener('click', function () {
   if (
     confirm(
-      'Do you really want to reset the session? Your previous data will be safely stored in the database'
+      'Do you really want to reset the sessions? Data from previous races will be safely stored in the backup file.'
     )
   ) {
     resetSessions();
@@ -49,8 +49,6 @@ function addSession() {
 }
 
 function editDrivers(row) {
-  // We need to add code later to check if the session has already started.
-
   const inputs = row.getElementsByTagName('input');
   const driverNameList = [];
 
@@ -135,9 +133,7 @@ socket.on('end_time', data => {
     const tableBody = document
       .getElementById('sessionsTable')
       .getElementsByTagName('tbody')[0];
-    console.log(tableBody);
     const rows = tableBody.getElementsByTagName('tr');
-    console.log(rows);
     for (let i = 0; i < rows.length; i++) {
       if (Number(rows[i].cells[1].textContent) === Number(data.sessionId)) {
         tableBody.removeChild(rows[i]);

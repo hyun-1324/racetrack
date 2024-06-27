@@ -8,12 +8,23 @@ import { Server } from 'socket.io';
 import moment from 'moment';
 import { checkAccessKeysExist, checkAccess } from './accessKey.js';
 import { initializeDb } from './database/initializeDb.js';
-import { sessionData, endTimeData, lapTimeUpdate } from './public/classes.js';
-import { updateLapTime } from './lapTimes.js';
+import { sessionData, endTimeData } from './public/classes.js';
+import { updateLapTime, fetchLeaderboardDataFromDb, fetchLapTimeDataFromDb } from './lapTimes.js';
+import { 
+  fetchNextSessionData, 
+  fetchUpcomingSessionDataFromUpdate, 
+  updateSessionInfo, 
+  updateSessionStatus, 
+  fetchNextSessionDataFromEndTime,
+  fetchEndTimeDataFromDb,
+  saveRaceMode,
+  fetchRaceMode,
+  fetchReconnectDataforReception,
+  fetchLastId 
+} from './sessions.js';
 
 // Check that access keys are set
 const result = checkAccessKeysExist();
-// Key-variables ready to be used in the code
 let receptionistKey, observerKey, safetyKey;
 if (!result.success) {
   process.exit(1);
@@ -25,7 +36,7 @@ if (!result.success) {
 
 // Create an Express application
 const app = express();
-// Serve the public directory (statics)
+// Serve the static files from public directory
 app.use('/public', express.static('public'));
 // Set ejs as the view engine (templating engine)
 app.set('view engine', 'ejs');
@@ -35,40 +46,31 @@ app.use(express.urlencoded({ extended: true }));
 // Create a HTTP server using the Express application
 const server = createServer(app);
 
+// Get the current directory name to serve html files
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-initializeDb()
-  .then(db => {
+// Initialize the database
+initializeDb().then(db => {
     // Define a route handler for each interface
-    app.get('/front-desk', (req, res) =>
-      res.render('login', { errorMessage: '' })
-    );
-    app.post('/front-desk', (req, res) =>
-      checkAccess(req, res, receptionistKey)
-    );
-    app.get('/race-control', (req, res) =>
-      res.render('login', { errorMessage: '' })
-    );
-    app.post('/race-control', (req, res) => checkAccess(req, res, safetyKey));
-    app.get('/lap-line-tracker', (req, res) =>
-      res.render('login', { errorMessage: '' })
-    );
-    app.post('/lap-line-tracker', (req, res) =>
-      checkAccess(req, res, observerKey)
-    );
-    app.get('/leader-board', (req, res) =>
-      res.sendFile(join(__dirname, 'html', 'leaderBoard.html'))
-    );
-    app.get('/race-countdown', (req, res) =>
-      res.sendFile(join(__dirname, 'html', 'countdown.html'))
-    );
-    app.get('/race-flags', (req, res) =>
-      res.sendFile(join(__dirname, 'html', 'flag.html'))
-    );
-    app.get('/next-race', (req, res) =>
-      res.sendFile(join(__dirname, 'html', 'nextRace.html'))
-    );
-    app.get('/timer', (req, res) => {
+    app.route('/front-desk')
+      .get((_, res) => res.render('login', { errorMessage: '' }))
+      .post((req, res) => checkAccess(req, res, receptionistKey));
+    app.route('/race-control')
+      .get((_, res) => res.render('login', { errorMessage: '' }))
+      .post((req, res) => checkAccess(req, res, safetyKey));
+    app.route('/lap-line-tracker')
+      .get((_, res) => res.render('login', { errorMessage: '' }))
+      .post((req, res) => checkAccess(req, res, observerKey));
+    app.route('/leader-board')
+      .get((_, res) => res.sendFile(join(__dirname, 'html', 'leaderBoard.html')));
+    app.route('/race-countdown')
+      .get((_, res) => res.sendFile(join(__dirname, 'html', 'countdown.html')));
+    app.route('/race-flags')
+      .get((_, res) =>res.sendFile(join(__dirname, 'html', 'flag.html')));
+    app.route('/next-race')
+      .get((_, res) => res.sendFile(join(__dirname, 'html', 'nextRace.html')));
+    app.route('/timer')
+      .get((_, res) => {
       const timerDuration = process.env.TIMER;
       res.json({ timerDuration: timerDuration });
     });
@@ -78,9 +80,7 @@ initializeDb()
     io.on('connection', async socket => {
       // Emit all data needed by (re)connecting client
       try {
-        const fetchDataForPreparation = await fetchreconnectDataforReception(
-          db
-        );
+        const fetchDataForPreparation = await fetchReconnectDataforReception(db);
         const lastId = await fetchLastId(db);
         socket.emit('reconnect_reception', fetchDataForPreparation, lastId);
 
@@ -94,10 +94,7 @@ initializeDb()
         let upcomingSessionInfo = await fetchUpcomingSessionDataFromUpdate(db);
         socket.emit('upcoming_session', upcomingSessionInfo);
 
-        const leaderboardInfo = await fetchLeaderboardDataFromDb(
-          db,
-          upcomingSessionInfo
-        );
+        const leaderboardInfo = await fetchLeaderboardDataFromDb(db, upcomingSessionInfo);
         if (
           upcomingSessionInfo.status === 'prepare' ||
           upcomingSessionInfo.status === 'endSession'
@@ -109,41 +106,30 @@ initializeDb()
         const endTime = await fetchEndTimeDataFromDb(db);
         socket.emit('end_time', endTime);
 
-        const lapTimeDatas = await fetchLapTimeDataFromDb(
-          db,
-          upcomingSessionInfo
-        );
+        const lapTimeDatas = await fetchLapTimeDataFromDb(db, upcomingSessionInfo);
         if (lapTimeDatas.length > 0) {
           for (const lapTimeData of lapTimeDatas) {
             socket.emit('update_lap_time', lapTimeData);
           }
         }
       } catch (error) {
-        console.error('Error handling connection:', error);
+        console.error('Error fetching connection data:', error);
       }
 
       // Listen for events from the clients
       socket.on('race_mode', async raceMode => {
         await saveRaceMode(db, raceMode);
-        // When we receive 'racemode' event from a client, emit it to all clients
         io.emit('race_mode', raceMode);
       });
 
       socket.on('end_time', async endTime => {
         io.emit('end_time', endTime);
         await updateSessionStatus(db, endTime);
-
         if (endTime.action === 'start') {
-          const nextSessionData = await fetchNextSessionDataFromEndTime(
-            db,
-            endTime
-          );
+          const nextSessionData = await fetchNextSessionDataFromEndTime(db,endTime);
           io.emit('next_session', nextSessionData);
         } else if (endTime.action === 'endSession') {
-          const upcomingSessionData = await fetchNextSessionDataFromEndTime(
-            db,
-            endTime
-          );
+          const upcomingSessionData = await fetchNextSessionDataFromEndTime(db, endTime);
           io.emit('next_session', upcomingSessionData);
           io.emit('upcoming_session', upcomingSessionData);
         }
@@ -151,9 +137,7 @@ initializeDb()
 
       socket.on('update_session', async updatedSession => {
         await updateSessionInfo(db, updatedSession);
-        const upcomingSessionData = await fetchUpcomingSessionDataFromUpdate(
-          db
-        );
+        const upcomingSessionData = await fetchUpcomingSessionDataFromUpdate(db);
         const nextSessionData = await fetchNextSessionData(db);
         io.emit('upcoming_session', upcomingSessionData);
         io.emit('next_session', nextSessionData);
@@ -169,15 +153,12 @@ initializeDb()
           const dbPath = join(__dirname, 'database', 'database.db');
           const initSqlPath = join(__dirname, 'database', 'initial.sql');
           const backupFolderPath = join(__dirname, 'database', 'backup');
-          const backupFileName = `database_${moment().format(
-            'YYYYMMDD_HHmmss'
-          )}.db`;
+          const backupFileName = `database_${moment().format('YYYYMMDD_HHmmss')}.db`;
           const backupFilePath = join(backupFolderPath, backupFileName);
           await fs.mkdir(backupFolderPath, { recursive: true });
           await fs.copyFile(dbPath, backupFilePath);
-
+          
           const sql = await fs.readFile(initSqlPath, 'utf8');
-
           await db.exec(sql);
 
           io.emit('next_session', new sessionData(0));
@@ -185,351 +166,17 @@ initializeDb()
           io.emit('end_time', new endTimeData(0, 'reset'));
           io.emit('race_mode', 'danger');
         } catch (error) {
-          console.error('Error handling connection:', error);
+          console.error('Error saving and reseting database:', error);
         }
       });
     });
 
-    // Start the server
+    // Start the server on port 3000
     const port = process.env.PORT || 3000;
     server.listen(port, () => console.log(`Server running on port ${port}...`));
 
-    // ngrok is run in different terminal with the same port as the local host server:
-    // ngrok http 3000
-    // ./ngrok http 3000
   })
   .catch(error => {
     console.error('Error initializing database:', error.message);
     process.exit(1);
   });
-
-async function fetchLeaderboardDataFromDb(db, upcomingSessionData) {
-  // If race has eneded and new race has not yet started, fetch latest race's information
-  if (
-    upcomingSessionData.status === 'prepare' ||
-    upcomingSessionData.status === 'endSession'
-  ) {
-    try {
-      const latestSession = await db.get(
-        'SELECT MAX(id) AS id FROM sessions WHERE status = "endSession"'
-      );
-      if (!latestSession || !latestSession.id) {
-        return new sessionData(0);
-      }
-      const driverInfo = await db.all(
-        'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
-        [latestSession.id]
-      );
-      return new sessionData(
-        latestSession.id,
-        'endSession',
-        driverInfo.map(r => r.driver_name)
-      );
-    } catch (err) {
-      console.error(err.message);
-      throw err;
-    }
-  }
-}
-
-async function fetchLapTimeDataFromDb(db, upcomingSessionInfo) {
-  try {
-    const lapTimeDatas = [];
-    const lapTimeData = await db.all(
-      'SELECT session_id, car_num, lap_num, fastest_lap FROM lap_times WHERE session_id = ?',
-      [upcomingSessionInfo.sessionId]
-    );
-
-    if (!lapTimeData) {
-      return lapTimeDatas;
-    }
-
-    for (const row of lapTimeData) {
-      let laptime = new lapTimeUpdate(
-        row.session_id,
-        row.car_num,
-        row.lap_num,
-        row.fastest_lap
-      );
-      lapTimeDatas.push(laptime);
-    }
-    return lapTimeDatas;
-  } catch (err) {
-    console.error(err.message);
-    throw err;
-  }
-}
-
-async function updateSessionInfo(db, updatedSession) {
-  try {
-    if (updatedSession.status === 'add') {
-      const sqlSessions = `REPLACE INTO sessions (id, status) VALUES (?, 'prepare');`;
-      await db.run(sqlSessions, [updatedSession.sessionId]);
-
-      const sqlAssignments =
-        'INSERT INTO driver_car_assignments (session_id, car_num) VALUES (?, ?)';
-      for (let i = 1; i < 9; i++) {
-        await db.run(sqlAssignments, [updatedSession.sessionId, i]);
-      }
-    } else if (updatedSession.status === 'remove') {
-      const sql = 'DELETE FROM sessions WHERE id = ?';
-      await db.run(sql, [updatedSession.sessionId]);
-    } else if (updatedSession.status === 'edit') {
-      const sql =
-        'UPDATE driver_car_assignments SET driver_name = ? WHERE session_id = ? AND car_num = ?';
-      for (let i = 0; i < 8; i++) {
-        let driverName = updatedSession.driverNameList[i];
-        await db.run(sql, [driverName, updatedSession.sessionId, i + 1]);
-      }
-    }
-  } catch (err) {
-    console.error(err.message);
-    throw err;
-  }
-}
-
-async function updateSessionStatus(db, endTime) {
-  const sql = 'UPDATE sessions SET end_time = ?, status = ? WHERE id = ?';
-  await db.run(
-    sql,
-    [endTime.endTime, endTime.action, endTime.sessionId],
-    function (err) {
-      if (err) {
-        console.error(err.message);
-      }
-    }
-  );
-}
-
-async function fetchNextSessionDataFromEndTime(db, endTime) {
-  const nextSessionData = new sessionData();
-  try {
-    const findSessionSql =
-      'SELECT MIN(id) AS nextSessionId FROM sessions WHERE id > ?';
-    const result = await db.get(findSessionSql, endTime.sessionId);
-
-    if (!result || !result.nextSessionId) {
-      nextSessionData.sessionId = 0;
-      return nextSessionData;
-    }
-
-    nextSessionData.sessionId = result.nextSessionId;
-
-    const driverInfo = await db.all(
-      'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
-      result.nextSessionId
-    );
-    nextSessionData.driverNameList = driverInfo.map(row => row.driver_name);
-
-    if (endTime.action === 'start') {
-      nextSessionData.status = 'start';
-    } else {
-      nextSessionData.status = 'endSession';
-    }
-
-    return nextSessionData;
-  } catch (error) {
-    console.error('Database error:', error.message);
-    throw new Error('Failed to get next session data');
-  }
-}
-
-async function fetchUpcomingSessionDataFromUpdate(db) {
-  try {
-    const upcomingSessionData = new sessionData();
-    let row = await db.get(
-      "SELECT id AS upcomingSessionId FROM sessions WHERE status = 'start'"
-    );
-    upcomingSessionData.status = 'start';
-    if (!row || !row.upcomingSessionId) {
-      row = await db.get(
-        "SELECT id AS upcomingSessionId FROM sessions WHERE status = 'finish'"
-      );
-      upcomingSessionData.status = 'finish';
-      if (!row || !row.upcomingSessionId) {
-        row = await db.get(
-          "SELECT MIN(id) AS upcomingSessionId FROM sessions WHERE status = 'prepare'"
-        );
-        upcomingSessionData.status = 'prepare';
-        if (!row || !row.upcomingSessionId) {
-          row = await db.get(
-            "SELECT MAX(id) AS upcomingSessionId FROM sessions WHERE status = 'endSession'"
-          );
-          upcomingSessionData.status = 'endSession';
-          upcomingSessionData.sessionId = 0;
-          return upcomingSessionData;
-        }
-      }
-    }
-    upcomingSessionData.sessionId = row.upcomingSessionId;
-
-    let sessionInfo = await db.get(
-      'SELECT end_time AS endTime FROM sessions WHERE id = ?',
-      [upcomingSessionData.sessionId]
-    );
-    if (sessionInfo.endTime) {
-      upcomingSessionData.endTime = sessionInfo.endTime;
-    }
-
-    const driverInfo = await db.all(
-      'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
-      [row.upcomingSessionId]
-    );
-    upcomingSessionData.driverNameList = driverInfo.map(r => r.driver_name);
-    return upcomingSessionData;
-  } catch (err) {
-    console.error(err.message);
-    throw err;
-  }
-}
-
-async function fetchNextSessionData(db) {
-  const nextSessionData = new sessionData();
-  let result = await db.get(
-    "SELECT id FROM sessions WHERE status IN ('start', 'finish')"
-  );
-
-  if (result && result.id) {
-    result = await db.get(
-      "SELECT MIN(id) AS id FROM sessions WHERE status = 'prepare'"
-    );
-
-    if (result && result.id) {
-      nextSessionData.sessionId = result.id;
-      nextSessionData.status = 'start';
-    } else {
-      nextSessionData.sessionId = 0;
-    }
-  } else {
-    result = await db.get(
-      "SELECT MAX(id) AS id FROM sessions WHERE status = 'endSession'"
-    );
-    if (result && result.id) {
-      result = await db.get(
-        "SELECT MIN(id) AS id FROM sessions WHERE status = 'prepare'"
-      );
-
-      if (result && result.id) {
-        nextSessionData.sessionId = result.id;
-        nextSessionData.status = 'prepare';
-      } else {
-        nextSessionData.sessionId = 0;
-      }
-    } else {
-      result = await db.get(
-        "SELECT MIN(id) AS id FROM sessions WHERE status = 'prepare'"
-      );
-      if (result && result.id) {
-        nextSessionData.status = 'prepare';
-        nextSessionData.sessionId = result.id;
-      } else {
-        nextSessionData.sessionId = 0;
-      }
-    }
-  }
-
-  const driverInfo = await db.all(
-    'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
-    [nextSessionData.sessionId]
-  );
-  nextSessionData.driverNameList = driverInfo.map(r => r.driver_name);
-
-  return nextSessionData;
-}
-
-async function fetchreconnectDataforReception(db) {
-  try {
-    const sessionArr = [];
-    const sessionIdsInPreparing = await db.all(
-      "SELECT id FROM sessions WHERE status = 'prepare' ORDER BY id ASC"
-    );
-
-    if (sessionIdsInPreparing.length === 0) {
-      return sessionArr;
-    }
-
-    for (const session of sessionIdsInPreparing) {
-      const sessionDataInPreparing = new sessionData();
-      sessionDataInPreparing.status = 'prepare';
-      sessionDataInPreparing.id = session.id;
-
-      const driverInfo = await db.all(
-        'SELECT car_num, driver_name FROM driver_car_assignments WHERE session_id = ?',
-        [session.id]
-      );
-      sessionDataInPreparing.driverNameList = driverInfo.map(
-        r => r.driver_name
-      );
-      sessionArr.push(sessionDataInPreparing);
-    }
-
-    return sessionArr;
-  } catch (err) {
-    console.error(err.message);
-    throw err;
-  }
-}
-
-async function fetchLastId(db) {
-  let lastId;
-  const result = await db.get('SELECT MAX(id) AS id FROM sessions');
-
-  if (!result || !result.id) {
-    lastId = 0;
-    return lastId;
-  }
-
-  return result.id;
-}
-
-async function saveRaceMode(db, raceMode) {
-  try {
-    const sql = `UPDATE race_mode SET mode = ? WHERE id = 1`;
-    await db.run(sql, [raceMode]);
-  } catch (err) {
-    console.error(err.message);
-    throw err;
-  }
-}
-
-async function fetchRaceMode(db) {
-  const result = await db.get(
-    'SELECT mode AS raceMode FROM race_mode WHERE id = 1'
-  );
-  return result.raceMode;
-}
-
-async function fetchEndTimeDataFromDb(db) {
-  const endTime = new endTimeData();
-  let result = await db.get(
-    "SELECT end_time AS endTime, id FROM sessions WHERE status = 'start'"
-  );
-
-  if (result && result.endTime) {
-    endTime.action = 'start';
-    endTime.sessionId = result.id;
-    endTime.endTime = result.endTime;
-    return endTime;
-  }
-
-  if (!result || !result.endTime) {
-    result = await db.get(
-      "SELECT end_time AS endTime, id FROM sessions WHERE status = 'finish'"
-    );
-
-    if (result && result.endTime) {
-      endTime.action = 'finish';
-      endTime.sessionId = result.id;
-      endTime.endTime = result.endTime;
-      return endTime;
-    }
-
-    if (!result || !result.endTime) {
-      result = await db.get(
-        "SELECT end_time AS endTime FROM sessions WHERE status IN ('endSession', 'prepare')"
-      );
-      endTime.action = 'endSession';
-      return endTime;
-    }
-  }
-}

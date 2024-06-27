@@ -29,7 +29,7 @@ export function showTimer() {
     }
   });
   async function timer(endTime) {
-    // Update the count down every 1 second
+    // Update the count down every 10 milliseconds
     countdownFunction = setInterval(function () {
       // Get today's date and time
       let now = new Date().getTime();
@@ -37,8 +37,7 @@ export function showTimer() {
       // Find the distance between now and the count down date
       let distance = endTime - now;
 
-      // Time calculations for hours, minutes and seconds
-
+      // Time calculations for minutes, seconds and milliseconds
       let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       let seconds = Math.floor((distance % (1000 * 60)) / 1000);
       let milliseconds = Math.floor((distance % 1000) / 10);
@@ -77,7 +76,7 @@ export function fullscreenButton() {
       document.documentElement
         .requestFullscreen()
         .then(() => {
-          fullscreen.textContent = 'Exit Full Screen';
+          fullscreenButton.textContent = 'Exit Full Screen';
         })
         .catch(err => {
           console.error(
@@ -90,7 +89,7 @@ export function fullscreenButton() {
         document
           .exitFullscreen()
           .then(() => {
-            fullscreen.textContent = 'Full Screen';
+            fullscreenButton.textContent = 'Full Screen';
           })
           .catch(err => {
             console.error(

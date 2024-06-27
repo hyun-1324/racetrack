@@ -75,7 +75,7 @@ fullscreenButton.addEventListener('click', () => {
     document.documentElement
       .requestFullscreen()
       .then(() => {
-        fullscreen.textContent = 'Exit Full Screen';
+        fullscreenButton.textContent = 'Exit Full Screen';
       })
       .catch(err => {
         console.error(
@@ -88,7 +88,7 @@ fullscreenButton.addEventListener('click', () => {
       document
         .exitFullscreen()
         .then(() => {
-          fullscreen.textContent = 'Full Screen';
+          fullscreenButton.textContent = 'Full Screen';
         })
         .catch(err => {
           console.error(
