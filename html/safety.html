@@ -12,65 +12,66 @@
     <link rel="stylesheet" href="/public/css/safety.css" />
   </head>
   <body>
-    <h2>Safety control</h2>
-    <div id="mainControllerContainer">
-      <div id="currentModeBox">
-        Current Mode: <span id="currentMode">Danger</span>
-      </div>
-      <div class="buttons">
-        <button id="start" disabled>Start Race</button>
-        <button id="end" disabled>End Session</button>
+    <div id="headerBox">
+      <h2>Safety control</h2>
+      <div class="timer" id="timer">00:00:00</div>
+      <div id="mainControllerContainer">
+        <div id="currentModeBox">
+          Current Mode: <span id="currentMode">Danger</span>
+        </div>
+        <div class="buttons">
+          <button id="start" disabled>Start Race</button>
+          <button id="end" disabled>End Session</button>
+        </div>
       </div>
     </div>
-    <div class="timer" id="timer">00:00:00</div>
+   
     <div class="modeButtons">
-      <h3>Race modes</h3>
-      <button id="safe" disabled>Safe</button>
-      <button id="hazard" disabled>Hazard</button>
-      <button id="danger" disabled>Danger</button>
-      <button id="finish" disabled>Finish</button>
+      <div id="flexButtons">
+        <h2>Race modes</h3>
+        <button id="safe" disabled>Safe</button>
+        <button id="hazard" disabled>Hazard</button>
+        <button id="danger" disabled>Danger</button>
+        <button id="finish" disabled>Finish</button>
+      </div>
     </div>
 
     <div id="sessionInfo">
       <h2>Session ID: <span id="sessionId">0</span></h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Car 1</th>
-            <th>Car 2</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td id="car1"></td>
-            <td id="car2"></td>
-          </tr>
-          <tr>
-            <th>Car 3</th>
-            <th>Car 4</th>
-          </tr>
-          <tr>
-            <td id="car3"></td>
-            <td id="car4"></td>
-          </tr>
-          <tr>
-            <th>Car 5</th>
-            <th>Car 6</th>
-          </tr>
-          <tr>
-            <td id="car5"></td>
-            <td id="car6"></td>
-          </tr>
-          <tr>
-            <th>Car 7</th>
-            <th>Car 8</th>
-          </tr>
-          <tr>
-            <td id="car7"></td>
-            <td id="car8"></td>
-          </tr>
-        </tbody>
-      </table>
+      <div id="sessionInfoGrid">
+        <div class="gridItem">
+          <div class="carNum">Car 1</div>
+          <div id="car1" class="driverName"></div>
+        </div>
+        <div class="gridItem">
+          <div class="carNum">Car 2</div>
+          <div id="car2" class="driverName"></div>
+        </div>
+        <div class="gridItem">
+          <div class="carNum">Car 3</div>
+          <div id="car3" class="driverName"></div>
+        </div>
+        <div class="gridItem">
+          <div class="carNum">Car 4</div>
+          <div id="car4" class="driverName"></div>
+        </div>
+        <div class="gridItem">
+          <div class="carNum">Car 5</div>
+          <div id="car5" class="driverName"></div>
+        </div>
+        <div class="gridItem">
+          <div class="carNum">Car 6</div>
+          <div id="car6" class="driverName"></div>
+        </div>
+        <div class="gridItem">
+          <div class="carNum">Car 7</div>
+          <div id="car7" class="driverName"></div>
+        </div>
+        <div class="gridItem">
+          <div class="carNum">Car 8</div>
+          <div id="car8" class="driverName"></div>
+        </div>
+      </div>
     </div>
     <p id="noRaces">No Upcoming Race</p>
   </body>
