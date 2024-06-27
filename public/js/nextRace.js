@@ -1,8 +1,8 @@
 import { sessionData } from '../classes.js';
-import { fullscreenButton } from './countdown.js';
 
 const sessionInfo = document.getElementById('sessionInfo');
 const driverNames = document.getElementById('driverNames');
+const fullscreenButton = document.getElementById('fullScreenButton');
 const noRaces = document.getElementById('noRaces');
 const proceedMessage = document.getElementById('proceedMessage');
 let sessionId = document.getElementById('sessionId');
@@ -16,8 +16,6 @@ let nextSessionData = new sessionData(0, undefined, [
   '',
   '',
 ]);
-
-fullscreenButton();
 
 // Show next session info using fetched data
 socket.on('next_session', data => {
@@ -71,3 +69,41 @@ function addDriversInfo(driverNameList) {
     }
   }
 }
+
+fullscreenButton.addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    // Request full screen mode
+    document.documentElement
+      .requestFullscreen()
+      .then(() => {
+        fullscreenButton.textContent = 'Exit Full Screen';
+      })
+      .catch(err => {
+        console.error(
+          `Error attempting to enable full-screen mode: ${err.message} (${err.name})`
+        );
+      });
+  } else {
+    // Exit full screen mode
+    if (document.exitFullscreen) {
+      document
+        .exitFullscreen()
+        .then(() => {
+          fullscreenButton.textContent = 'Full Screen';
+        })
+        .catch(err => {
+          console.error(
+            `Error attempting to exit full-screen mode: ${err.message} (${err.name})`
+          );
+        });
+    }
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  if (document.fullscreenElement) {
+    fullscreenButton.textContent = 'Exit Full Screen';
+  } else {
+    fullscreenButton.textContent = 'Full Screen';
+  }
+});

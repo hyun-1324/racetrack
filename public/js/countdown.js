@@ -71,6 +71,7 @@ export function showTimer() {
       document.getElementById('timer').textContent = '00:00:00';
     }
   });
+
   async function timer(endTime) {
     // Update the count down every 10 milliseconds
     countdownFunction = setInterval(function () {
