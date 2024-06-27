@@ -24,11 +24,11 @@ export function checkAccess(req, res, emloyeeKey) {
     // If key is correct, send the corresponding HTML file
     if (key === emloyeeKey && key !== undefined) {
         if (path === '/front-desk') {
-            res.status(200).sendFile(join(__dirname, 'html', 'reception.html'));
+            res.status(200).sendFile(join(__dirname, '..', 'html', 'reception.html'));
         } else if (path === '/race-control') {
-            res.status(200).sendFile(join(__dirname, 'html', 'safety.html'));
+            res.status(200).sendFile(join(__dirname, '..', 'html', 'safety.html'));
         } else if (path === '/lap-line-tracker') {
-            res.status(200).sendFile(join(__dirname, 'html', 'observer.html'));
+            res.status(200).sendFile(join(__dirname, '..', 'html', 'observer.html'));
         } else {
             res.status(400).send('Bad request');
         }
