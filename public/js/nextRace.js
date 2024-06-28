@@ -2,11 +2,10 @@ import { sessionData } from '../classes.js';
 
 const sessionInfo = document.getElementById('sessionInfo');
 const driverNames = document.getElementById('driverNames');
+const fullscreenButton = document.getElementById('fullScreenButton');
 const noRaces = document.getElementById('noRaces');
 const proceedMessage = document.getElementById('proceedMessage');
-const fullscreenButton = document.getElementById('fullScreenButton');
 let sessionId = document.getElementById('sessionId');
-
 let nextSessionData = new sessionData(0, undefined, [
   '',
   '',
@@ -18,6 +17,7 @@ let nextSessionData = new sessionData(0, undefined, [
   '',
 ]);
 
+// Show next session info using fetched data
 socket.on('next_session', data => {
   nextSessionData = data;
   if (nextSessionData.sessionId === 0) {
@@ -56,6 +56,7 @@ socket.on('next_session', data => {
   }
 });
 
+// Add drivers' info using fetched data
 function addDriversInfo(driverNameList) {
   document.querySelector('#driverNames').style.display = 'grid';
   for (let i = 0; i < 8; i++) {

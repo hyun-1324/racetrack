@@ -2,6 +2,7 @@ const bodyStyle = document.body.style;
 const fullscreenButton = document.getElementById('fullScreenButton');
 
 socket.on('race_mode', data => {
+  // Change the background color by race mode
   if (data === 'safe') {
     bodyStyle.backgroundColor = 'green';
   } else if (data === 'hazard') {

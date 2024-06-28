@@ -34,6 +34,7 @@ hazard.addEventListener('click', () => setMode('hazard'));
 danger.addEventListener('click', () => setMode('danger'));
 finish.addEventListener('click', () => setMode('finish'));
 
+// Define the startRace button functionality
 async function startRace() {
   timerDuration = await getTimerDuration();
   endTime = new Date().getTime() + timerDuration * 1000;
@@ -46,39 +47,46 @@ async function startRace() {
   endSessionStatus = false;
 }
 
-function endSession() {
+// Define the endSession button functionality
+async function endSession() {
   setMode('danger');
   hideElements(end);
   showElements(start);
   endSessionStatus = true;
   socket.emit('end_time', new endTimeData(sessionId, 'endSession', endTime));
+  timerDuration = await getTimerDuration();
   if (Number(timerDuration) === 60) {
-    document.getElementById('timer').innerHTML = '01:00:00';
+    document.getElementById('timer').textContent = '01:00:00';
   } else if (Number(timerDuration) === 600) {
-    document.getElementById('timer').innerHTML = '10:00:00';
+    document.getElementById('timer').textContent = '10:00:00';
   }
 
-  for (let i = 1; i < 9; i++) {
-    const name = document.getElementById(`car${i}`);
-    name.textContent = upcomingSessionData.driverNameList[i - 1];
+  if (upcomingSessionData.driverNameList) {
+    for (let i = 1; i < 9; i++) {
+      const name = document.getElementById(`car${i}`);
+      name.textContent = upcomingSessionData.driverNameList[i - 1];
+    }
   }
 }
 
+// Set the race mode and update the display
 function setMode(mode) {
   socket.emit('race_mode', mode);
   setCurrentModeOnDisplay(mode);
 
+  // Stop the timer when the mode is 'finish'
   if (mode === 'finish') {
     endTime = new Date().getTime();
     socket.emit('end_time', new endTimeData(sessionId, 'finish', endTime));
     clearInterval(countdownFunction);
-    document.getElementById('timer').innerHTML = 'Race Completed!';
+    document.getElementById('timer').textContent = 'Race Completed!';
     deactivateModeButtons();
     hideElements(modeButtons);
     showElements(end);
   }
 }
 
+// Update the display to show the current mode
 function setCurrentModeOnDisplay(mode) {
   if (mode === 'safe') {
     currentMode.textContent = 'Safe';
@@ -95,6 +103,7 @@ function setCurrentModeOnDisplay(mode) {
   }
 }
 
+// Enable all mode buttons
 function activateModeButtons() {
   safe.disabled = false;
   hazard.disabled = false;
@@ -102,6 +111,7 @@ function activateModeButtons() {
   finish.disabled = false;
 }
 
+// Disable all mode buttons
 function deactivateModeButtons() {
   safe.disabled = true;
   hazard.disabled = true;
@@ -109,6 +119,7 @@ function deactivateModeButtons() {
   finish.disabled = true;
 }
 
+// Show specified elements
 function showElements(elements) {
   elements.style.display = 'block';
   if (!(elements === sessionInfo) && !(elements === noRaces)) {
@@ -116,6 +127,7 @@ function showElements(elements) {
   }
 }
 
+// Hide specified elements
 function hideElements(elements) {
   elements.style.display = 'none';
   if (!(elements === sessionInfo) && !(elements === noRaces)) {
@@ -123,6 +135,7 @@ function hideElements(elements) {
   }
 }
 
+// Get the timer duration from the environment variable
 async function getTimerDuration() {
   try {
     const response = await fetch('/timer');
@@ -133,6 +146,7 @@ async function getTimerDuration() {
   }
 }
 
+// Set the timer using endTime
 async function timer(endTime) {
   if (countdownFunction) clearInterval(countdownFunction);
   timerDuration = await getTimerDuration();
@@ -142,7 +156,7 @@ async function timer(endTime) {
     // Get today's date and time
     let now = new Date().getTime();
 
-    // Find the distance between now and the count down date
+    // Calculate the remaining time
     let distance = endTime - now;
 
     // Time calculations for minutes, seconds and milliseconds
@@ -151,7 +165,7 @@ async function timer(endTime) {
     let milliseconds = Math.floor((distance % 1000) / 10);
 
     // Display the result in the element with id="timer"
-    document.getElementById('timer').innerHTML =
+    document.getElementById('timer').textContent =
       minutes.toLocaleString('en-US', {
         minimumIntegerDigits: 2,
         useGrouping: false,
@@ -167,13 +181,15 @@ async function timer(endTime) {
         useGrouping: false,
       });
 
+    // Set the mode to 'finish' if the timer has ended
     if (distance < 0) {
       setMode('finish');
     }
   }, 10);
 }
 
-socket.on('upcoming_session', data => {
+// Show upcoming session info using fetched data
+socket.on('upcoming_session', async data => {
   let now = new Date().getTime();
   upcomingSessionData = data;
   if (endSessionStatus && upcomingSessionData.sessionId === 0) {
@@ -220,6 +236,17 @@ socket.on('upcoming_session', data => {
       name.textContent = upcomingSessionData.driverNameList[i - 1];
     }
   } else if (endSessionStatus && upcomingSessionData.sessionId !== 0) {
+    timerDuration = await getTimerDuration();
+    if (
+      upcomingSessionData.status === 'prepare' ||
+      upcomingSessionData.status === 'endSession'
+    ) {
+      if (Number(timerDuration) === 60) {
+        document.getElementById('timer').innerHTML = '01:00:00';
+      } else if (Number(timerDuration) === 600) {
+        document.getElementById('timer').innerHTML = '10:00:00';
+      }
+    }
     showElements(sessionInfo);
     hideElements(noRaces);
     sessionId = upcomingSessionData.sessionId;
@@ -240,12 +267,13 @@ socket.on('upcoming_session', data => {
   }
 });
 
+// set race mode by using reconnect data
 socket.on('reconnect_race_mode', mode => {
   socket.emit('race_mode', mode);
   setCurrentModeOnDisplay(mode);
 
   if (mode === 'finish') {
-    document.getElementById('timer').innerHTML = 'Race Completed!';
+    document.getElementById('timer').textContent = 'Race Completed!';
     showElements(end);
     hideElements(start);
   }
