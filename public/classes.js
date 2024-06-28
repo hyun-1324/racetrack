@@ -1,20 +1,20 @@
+// Class for data being sent via 'end_time' socket event 
 export class endTimeData {
   constructor(sessionId, action, endTime) {
     this.sessionId = sessionId;
-    this.action = action; // 'start', 'endSession', 'finish, 'reset''
+    this.action = action; // 'start', 'endSession', 'finish' ('reset')
     this.endTime = endTime;
   }
 }
 
-// Class for data being sent via 'racemode' socket event by security official
-// Mode options: 'safe', 'hazard', 'danger', 'finish'
+// Class for data being sent via 'racemode' and 'racemode_reconnect' socket events 
 export class racemodeData {
   constructor(mode) {
-    this.mode = mode;
+    this.mode = mode; // 'safe', 'hazard', 'danger', 'finish'
   }
 }
 
-// Class for data being sent via 'lap' socket event by lap-line-observer
+// Class for data being sent via 'lap_data' socket event by lap-line-observer
 export class lapTime {
   constructor(sessionId, carNumber, laplineCrossed) {
     this.sessionId = sessionId;
@@ -23,7 +23,7 @@ export class lapTime {
   }
 }
 
-// Class for data being sent to leader board via 'update_lap_time' socket event when lap-times are updated by observer
+// Class for data being sent to leader board via 'update_lap_time' socket event when lap-times are updated
 export class lapTimeUpdate {
   constructor(sessionId, carNumber, currentLap, fastestLapTime) {
     this.sessionId = sessionId;
@@ -33,11 +33,11 @@ export class lapTimeUpdate {
   }
 }
 
-// Class for data being sent via 'next_session' and 'upcoming_session' socket event
+// Class for data being sent via 'next_session', 'upcoming_session', 'reconnect_reception' and 'update_session' socket events
 export class sessionData {
   constructor(sessionId, status, driverNameList) {
     this.sessionId = sessionId;
-    this.status = status; //'finish', start', 'prepare', 'endSession'
+    this.status = status; //'finish', start', 'prepare', 'endSession' ('add', 'edit', 'remove')
     this.driverNameList = driverNameList;
   }
 }
