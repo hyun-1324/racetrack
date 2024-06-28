@@ -1,4 +1,7 @@
-import { showTimer, fullscreenButton } from './countdown.js';
+import { fullscreenButton, showTimer } from "./timerAndFullScreen.js";
+
+const timer = document.getElementById('timer');
+const fullscreenButtonElement = document.getElementById('fullScreenButton');
 
 let currentRaceData;
 socket.on('upcoming_session', data => {
@@ -8,8 +11,8 @@ socket.on('reconnect_leaderboard', data => {
   currentRaceData = data;
 });
 
-showTimer();
-fullscreenButton();
+showTimer(timer);
+fullscreenButton(fullscreenButtonElement);
 flags();
 createLeaderBoard();
 updateLeaderboard();

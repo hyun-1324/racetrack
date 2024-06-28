@@ -1,5 +1,7 @@
+import { fullscreenButton } from "./timerAndFullScreen.js";
+
 const bodyStyle = document.body.style;
-const fullscreenButton = document.getElementById('fullScreenButton');
+const fullscreenButtonElement = document.getElementById('fullScreenButton');
 
 socket.on('race_mode', data => {
   // Change the background color by race mode
@@ -18,40 +20,4 @@ socket.on('race_mode', data => {
   }
 });
 
-fullscreenButton.addEventListener('click', () => {
-  if (!document.fullscreenElement) {
-    // Request full screen mode
-    document.documentElement
-      .requestFullscreen()
-      .then(() => {
-        fullscreenButton.textContent = 'Exit Full Screen';
-      })
-      .catch(err => {
-        console.error(
-          `Error attempting to enable full-screen mode: ${err.message} (${err.name})`
-        );
-      });
-  } else {
-    // Exit full screen mode
-    if (document.exitFullscreen) {
-      document
-        .exitFullscreen()
-        .then(() => {
-          fullscreenButton.textContent = 'Full Screen';
-        })
-        .catch(err => {
-          console.error(
-            `Error attempting to exit full-screen mode: ${err.message} (${err.name})`
-          );
-        });
-    }
-  }
-});
-
-document.addEventListener('fullscreenchange', () => {
-  if (document.fullscreenElement) {
-    fullscreenButton.textContent = 'Exit Full Screen';
-  } else {
-    fullscreenButton.textContent = 'Full Screen';
-  }
-});
+fullscreenButton(fullscreenButtonElement);

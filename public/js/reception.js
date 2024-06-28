@@ -151,7 +151,7 @@ socket.on('end_time', data => {
   }
 });
 
-// Fetch data for reconnection
+// Listen to reconnect_reception event
 socket.on('reconnect_reception', (data, lastId) => {
   sessionIdCounter = lastId + 1;
   if (data.length === 0) {
