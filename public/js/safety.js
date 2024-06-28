@@ -188,7 +188,7 @@ async function timer(endTime) {
   }, 10);
 }
 
-// Show upcoming session info using fetched data
+// Show upcoming session info using upcoming session data
 socket.on('upcoming_session', async data => {
   let now = new Date().getTime();
   upcomingSessionData = data;
@@ -267,7 +267,7 @@ socket.on('upcoming_session', async data => {
   }
 });
 
-// set race mode by using reconnect data
+// Set race mode by using reconnect data
 socket.on('reconnect_race_mode', mode => {
   socket.emit('race_mode', mode);
   setCurrentModeOnDisplay(mode);
