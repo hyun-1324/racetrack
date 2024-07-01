@@ -95,7 +95,7 @@ p {
   font-size: 1em;
   height: 80%;
   width: 15%;
-  margin: 5px;
+  text-wrap: nowrap;
 }
 
 .timer {
@@ -139,7 +139,6 @@ p {
     font-size: 0.8em;
     height: 80%;
     width: 23%;
-    margin: 1px;
   }
 
   #sessionInfoGrid {
