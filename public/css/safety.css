@@ -136,7 +136,7 @@ p {
   }
 
   .modeButtons button {
-    font-size: 1em;
+    font-size: 0.8em;
     height: 80%;
     width: 23%;
     margin: 1px;
@@ -168,4 +168,3 @@ p {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-  
